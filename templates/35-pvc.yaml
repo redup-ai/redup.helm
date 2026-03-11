@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-{{ $.Release.Namespace }}-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}
+  name: pv-{{ $.Release.Namespace }}-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}
 {{- if $.Values.persistentvolume.annotations }}
   annotations:
 {{ tpl (toYaml $.Values.persistentvolume.annotations) $ | indent 8 }}
@@ -67,7 +67,7 @@ spec:
   resources:
 {{ tpl (toYaml $.Values.persistentvolumeclaim.resources) $ | indent 8 }}
 {{- end }}
-  volumeName: pv-{{ $.Release.Namespace }}-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}
+  volumeName: pv-{{ $.Release.Namespace }}-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}
 {{- if $.Values.persistentvolumeclaim.storageClassName }}
   storageClassName: {{ $.Values.persistentvolumeclaim.storageClassName }}
 {{- end }}

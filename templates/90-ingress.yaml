@@ -7,7 +7,7 @@ metadata:
   annotations:
 {{ tpl (toYaml $.Values.ingress.annotations) $ | indent 8 }}
 {{- end }}
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
   ingressClassName: {{ tpl $.Values.ingress.controller $ }}
   rules:
@@ -18,7 +18,7 @@ spec:
       - pathType: ImplementationSpecific
         backend:
           service:
-            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
             port:
               name: {{ $.Values.ingress.service.port }}
 {{- end }}

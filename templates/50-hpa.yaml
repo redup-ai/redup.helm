@@ -3,14 +3,14 @@
 apiVersion: deckhouse.io/v1beta1
 kind: PodMetric
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
   query: {{ tpl ($.Values.hpa.podMetric.query) $ }}
 ---
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -19,7 +19,7 @@ spec:
 {{- else if $.Values.statefulset.enable}}
     kind: StatefulSet
 {{- end}}
-    name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
   minReplicas: {{ tpl ($.Values.hpa.minReplicas) $ }}
   maxReplicas: {{ tpl ($.Values.hpa.maxReplicas) $ }}
 {{- if $.Values.hpa.behavior }}
@@ -30,7 +30,7 @@ spec:
   - type: Pods
     pods:
       metric:
-        name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
       target:
         type: AverageValue
         averageValue: {{ tpl ($.Values.hpa.podMetric.averageValue) $ }}

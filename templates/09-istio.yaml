@@ -5,7 +5,7 @@
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
 {{ tpl (toYaml $.Values.istio.VirtualService) $ | indent 2 }}
 {{- end }}
@@ -15,7 +15,7 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
 {{ tpl (toYaml $.Values.istio.DestinationRule) $ | indent 2 }}
 {{- end }}
@@ -25,7 +25,7 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
 {{ tpl (toYaml $.Values.istio.Sidecar) $ | indent 2 }}
 {{- end }}
@@ -35,7 +35,7 @@ spec:
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
 {{ tpl (toYaml $.Values.istio.PeerAuthentication) $ | indent 2 }}
 {{- end }}

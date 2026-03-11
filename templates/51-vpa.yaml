@@ -3,7 +3,7 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -12,7 +12,7 @@ spec:
 {{- else if and $.Values.statefulset $.Values.statefulset.enable}}
     kind: StatefulSet
 {{- end}}
-    name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
   updatePolicy:
     updateMode: "Auto"
 {{- if $.Values.vpa.minReplicas }}

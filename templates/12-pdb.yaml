@@ -3,9 +3,9 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
   labels:
-    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
 {{- if $.Values.pdb.maxUnavailable }}
   maxUnavailable: {{ $.Values.pdb.maxUnavailable }}
@@ -15,5 +15,5 @@ spec:
   unhealthyPodEvictionPolicy: AlwaysAllow
   selector:
     matchLabels:
-      app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+      app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 {{- end }}

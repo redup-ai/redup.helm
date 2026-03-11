@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 {{- if $.Values.configMap.data }}
 data:
 {{- range $name, $value := $.Values.configMap.data }}
@@ -33,7 +33,7 @@ binaryData:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-envs
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-envs
 {{- if $.Values.configEnv.data }}
 data:
 {{- range $name, $value := $.Values.configEnv.data }}

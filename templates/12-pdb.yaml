@@ -1,0 +1,19 @@
+{{- if and $.Values.pdb $.Values.pdb.enable }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  labels:
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+{{- if $.Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ $.Values.pdb.maxUnavailable }}
+{{ else if $.Values.pdb.minAvailable }}
+  minAvailable: {{ $.Values.pdb.minAvailable }}
+{{- end }}
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- end }}

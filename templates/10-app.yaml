@@ -1,0 +1,313 @@
+{{- if $.Values.service and $.Values.service.enable }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.service.serviceLabels }}
+  labels:
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+    app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+{{ tpl (toYaml $.Values.service.serviceLabels) $ | indent 4 }}
+{{- end }}
+{{- if $.Values.service.serviceAnnotations }}
+  annotations:
+{{ tpl (toYaml $.Values.service.serviceAnnotations) $ | indent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  type: ClusterIP
+{{- if $.Values.service.clusterIP }}
+  clusterIP: {{ tpl (toYaml $.Values.service.clusterIP) $ }}
+{{- end }}
+{{- if $.Values.service.servicePorts }}
+  ports:
+{{ tpl (toYaml $.Values.service.servicePorts) $ | indent 2 }}
+{{- end }}
+{{- end }}
+
+{{- if and $.Values.deployment $.Values.deployment.enable }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+    app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.deployment.annotations }}
+  annotations:
+{{ tpl (toYaml $.Values.deployment.annotations) $ | indent 8 }}
+{{- end }}
+spec:
+{{- if or (not $.Values.hpa) (not $.Values.hpa.enable) }}
+  replicas: {{ tpl ($.Values.deployment.replicas) $ }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.deployment.strategy }}
+  strategy:
+{{ tpl (toYaml $.Values.deployment.strategy) $ | indent 4 }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        version: {{ $.Chart.Version | replace "+" "_" }}
+        app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        app.kubernetes.io/version: {{ $.Chart.Version | replace "+" "_" }}
+        app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+        app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+{{- if $.Values.deployment.podLabels }}
+{{ tpl (toYaml $.Values.deployment.podLabels) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.podAnnotations }}
+      annotations:
+{{ tpl (toYaml $.Values.deployment.podAnnotations) $ | indent 8 }}
+{{- end }}
+    spec:
+{{- if $.Values.deployment.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.deployment.terminationGracePeriodSeconds }}
+{{- end }}
+{{- if $.Values.deployment.priorityClassName }}
+      priorityClassName: {{ tpl (toYaml $.Values.deployment.priorityClassName) $ }}
+{{- end }}
+{{- if $.Values.deployment.podAffinity }}
+      affinity:
+{{ tpl (toYaml $.Values.deployment.podAffinity) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.topologySpreadConstraints }}
+      topologySpreadConstraints:
+{{ regexReplaceAll ": '([0-9]+)'" (tpl (toYaml $.Values.deployment.topologySpreadConstraints) $) ": ${1}" | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.nodeSelector }}
+      nodeSelector:
+{{ tpl (toYaml $.Values.deployment.nodeSelector) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.tolerations }}
+      tolerations:
+{{ tpl (toYaml $.Values.deployment.tolerations) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.imagePullSecrets }}
+      imagePullSecrets:
+{{ tpl (toYaml $.Values.deployment.imagePullSecrets) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.volumes }}
+      volumes:
+{{ tpl (toYaml $.Values.deployment.volumes) $ | indent 6 }}
+{{- end }}
+{{- if $.Values.deployment.initContainers }}
+      initContainers:
+{{ tpl (toYaml $.Values.deployment.initContainers) $ | indent 6 }}
+{{- end }}
+{{- if $.Values.deployment.kubeScheduler }}
+      schedulerName: {{ $.Values.deployment.kubeScheduler }}
+{{- end }}
+      containers:
+{{- if $.Values.deployment.containers }}
+{{ tpl (toYaml $.Values.deployment.containers) $ | indent 6 }}
+{{- end }}
+      - name: main
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.deployment.podImage) $ }}
+{{- if $.Values.deployment.imagePullPolicy }}
+        imagePullPolicy: {{ $.Values.deployment.imagePullPolicy }}
+{{- end }}
+{{- if $.Values.deployment.podCommand }}
+{{ tpl (toYaml $.Values.deployment.podCommand) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.podArgs }}
+{{ tpl (toYaml $.Values.deployment.podArgs) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.livenessProbe }}
+        livenessProbe:
+{{ tpl (toYaml $.Values.deployment.livenessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.readinessProbe }}
+        readinessProbe:
+{{ tpl (toYaml $.Values.deployment.readinessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.startupProbe }}
+        startupProbe:
+{{ tpl (toYaml $.Values.deployment.startupProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.resources }}
+        resources:
+{{ tpl (toYaml $.Values.deployment.resources) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.containerPorts }}
+        ports:
+{{ tpl (toYaml $.Values.deployment.containerPorts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.volumeMounts }}
+        volumeMounts:
+{{ tpl (toYaml $.Values.deployment.volumeMounts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.envFrom }}
+        envFrom:
+{{ tpl (toYaml $.Values.deployment.envFrom) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.env }}
+        env:
+{{ tpl (toYaml $.Values.deployment.env) $ | indent 8 }}
+{{- end }}
+{{- end }}
+
+{{- if and $.Values.statefulset $.Values.statefulset.enable }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+    app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.statefulset.annotations }}
+  annotations:
+{{ tpl (toYaml $.Values.statefulset.annotations) $ | indent 8 }}
+{{- end }}
+spec:
+{{- if or (not $.Values.hpa) (not $.Values.hpa.enable) }}
+  replicas: {{ tpl ($.Values.statefulset.replicas) $ }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.statefulset.updateStrategy }}
+  updateStrategy:
+{{ tpl (toYaml $.Values.statefulset.updateStrategy) $ | indent 4 }}
+{{- end }}
+  serviceName: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.statefulset.podManagementPolicy }}
+  podManagementPolicy: {{ $.Values.statefulset.podManagementPolicy }}
+{{- end }}
+{{- if $.Values.statefulset.volumeClaimTemplates }}
+  volumeClaimTemplates:
+{{ tpl (toYaml $.Values.statefulset.volumeClaimTemplates) $ | indent 8 }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        version: {{ $.Chart.Version | replace "+" "_" }}
+        app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        app.kubernetes.io/version: {{ $.Chart.Version | replace "+" "_" }}
+        app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+        app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+{{- if $.Values.statefulset.podLabels }}
+{{ tpl (toYaml $.Values.statefulset.podLabels) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.podAnnotations }}
+      annotations:
+{{ tpl (toYaml $.Values.statefulset.podAnnotations) $ | indent 8 }}
+{{- end }}
+    spec:
+{{- if $.Values.statefulset.securityContext }}
+      securityContext:
+{{ tpl (toYaml $.Values.statefulset.securityContext) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.statefulset.terminationGracePeriodSeconds }}
+{{- end }}
+{{- if $.Values.statefulset.priorityClassName }}
+      priorityClassName: {{ tpl (toYaml $.Values.statefulset.priorityClassName) $ }}
+{{- end }}
+{{- if $.Values.statefulset.podAffinity }}
+      affinity:
+{{ tpl (toYaml $.Values.statefulset.podAffinity) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.topologySpreadConstraints }}
+      topologySpreadConstraints:
+{{ regexReplaceAll ": '([0-9]+)'" (tpl (toYaml $.Values.statefulset.topologySpreadConstraints) $) ": ${1}" | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.nodeSelector }}
+      nodeSelector:
+{{ tpl (toYaml $.Values.statefulset.nodeSelector) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.tolerations }}
+      tolerations:
+{{ tpl (toYaml $.Values.statefulset.tolerations) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.imagePullSecrets }}
+      imagePullSecrets:
+{{ tpl (toYaml $.Values.statefulset.imagePullSecrets) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.volumes }}
+      volumes:
+{{ tpl (toYaml $.Values.statefulset.volumes) $ | indent 6 }}
+{{- end }}
+{{- if $.Values.statefulset.serviceAccountName }}
+      serviceAccountName:  {{ tpl (toYaml $.Values.statefulset.serviceAccountName) $ }}
+{{- end }}
+{{- if $.Values.statefulset.initContainers }}
+      initContainers:
+{{ tpl (toYaml $.Values.statefulset.initContainers) $ | indent 6 }}
+{{- end }}
+{{- if $.Values.statefulset.kubeScheduler }}
+      schedulerName: {{ $.Values.statefulset.kubeScheduler }}
+{{- end }}
+      containers:
+{{- if $.Values.statefulset.sidecarContainers }}
+{{ tpl (toYaml $.Values.statefulset.sidecarContainers) $ | indent 6 }}
+{{- end }}
+      - name: main
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.statefulset.podImage) $ }}
+{{- if $.Values.statefulset.lifecycle }}
+        lifecycle:
+{{ tpl (toYaml $.Values.statefulset.lifecycle) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.statefulset.imagePullPolicy }}
+        imagePullPolicy: {{ tpl ($.Values.statefulset.imagePullPolicy) $ }}
+{{- end }}
+{{- if $.Values.statefulset.podCommand }}
+{{ tpl (toYaml $.Values.statefulset.podCommand) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.podArgs }}
+{{ tpl (toYaml $.Values.statefulset.podArgs) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.containerSecurityContext }}
+        securityContext:
+{{ tpl (toYaml $.Values.statefulset.containerSecurityContext) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.statefulset.livenessProbe }}
+        livenessProbe:
+{{ tpl (toYaml $.Values.statefulset.livenessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.statefulset.readinessProbe }}
+        readinessProbe:
+{{ tpl (toYaml $.Values.statefulset.readinessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.statefulset.startupProbe }}
+        startupProbe:
+{{ tpl (toYaml $.Values.statefulset.startupProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.statefulset.resources }}
+        resources:
+{{ tpl (toYaml $.Values.statefulset.resources) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.statefulset.containerPorts }}
+        ports:
+{{ tpl (toYaml $.Values.statefulset.containerPorts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.volumeMounts }}
+        volumeMounts:
+{{ tpl (toYaml $.Values.statefulset.volumeMounts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.envFrom }}
+        envFrom:
+{{ tpl (toYaml $.Values.statefulset.envFrom) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.statefulset.env }}
+        env:
+{{ tpl (toYaml $.Values.statefulset.env) $ | indent 8 }}
+{{- end }}
+{{- end }}

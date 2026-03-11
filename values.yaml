@@ -1,0 +1,458 @@
+################################################################################
+# Global application settings                                                   #
+################################################################################
+
+global:
+  registry: REGISTRY_NAME
+  package: REPO_NAME
+
+################################################################################
+# Application secrets configuration                                             #
+################################################################################
+
+secrets:
+  enable: false
+  data: {}
+
+################################################################################
+# Ingress controller configuration                                              #
+################################################################################
+
+ingress:
+  # Enable external access to the application from outside the cluster (true/false)
+  enable: false
+  # IngressClass/controller name to use
+  controller: "nginx"
+  # Name of the secret that contains certificate for HTTPS/GRPCS traffic
+  tls-secret-name: ""
+  # Base domain where the application is exposed
+  domain: "example.com"
+  # Annotations for the ingress resource
+  annotations: {}
+  # Target service configuration for ingress traffic
+  service:
+    # Service port name
+    port: "grpc-app"
+  # List of hostnames that route traffic to the service
+  hosts:
+    # Example: <service-name>-<namespace-name>.example.com
+  - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ $.Release.Namespace }}.{{ $.Values.ingress.domain }}"
+  extraIngresses: []
+  # - hosts:
+  #   - "metrics-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ $.Release.Namespace }}.{{ $.Values.ingress.domain }}"
+  #   service:
+  #     port: "http-metrics"
+  #     name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+  #   annotations: {}
+  #   tls-secret-name: ""
+  #   controller: "nginx"
+  #   name: "metrics-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+
+################################################################################
+# Istio traffic configuration for the application                               #
+################################################################################
+
+istio:
+  # Enable additional Istio-based networking configuration for the application
+  enable: false
+  # VirtualService configuration
+  VirtualService:
+  # List of hosts to which Istio rules apply
+    hosts:
+    # Example: <service-name>.<namespace-name>.svc.cluster.local
+    - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}.{{ $.Release.Namespace }}.svc.cluster.local"
+    # HTTP routing rules for intercepted traffic
+    http:
+    # Rule name
+    - name: default
+    # Retry policy for failed requests
+      retries:
+      # Number of retry attempts
+        attempts: 8
+      # Conditions under which the request should be retried
+        retryOn: connect-failure,refused-stream,unavailable,cancelled,retriable-status-codes,resource-exhausted
+    # Destination address for the routed traffic
+      route:
+      - destination:
+          host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}.{{ $.Release.Namespace }}.svc.cluster.local"
+        # Destination subset (version of pods)
+          subset: v1
+      timeout: 300s
+  # DestinationRule configuration
+  DestinationRule:
+    # Rule for a specific host
+    host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}.{{ $.Release.Namespace }}.svc.cluster.local"
+  # Subsets that select pods for traffic routing
+    subsets:
+    # Pod labels used to select pods in the cluster
+    - labels:
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+    # Subset name (version label)
+      name: v1
+    # Connection policy
+    trafficPolicy:
+      # Connection pool configuration
+      connectionPool:
+        http:
+          # Idle connection timeout
+          idleTimeout: 5s
+        tcp:
+          # Maximum time to establish a connection
+          connectTimeout: 1s
+          # Maximum lifetime of a connection (active connections are not closed)
+          maxConnectionDuration: 60s
+      # Load balancing strategy between service pods
+      loadBalancer:
+        simple: LEAST_REQUEST
+  # PeerAuthentication configuration between sidecars
+  PeerAuthentication:
+    selector:
+      matchLabels:
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+    # TLS mode between Istio sidecars
+    mtls:
+      mode: DISABLE
+  # Sidecar routing configuration
+  Sidecar:
+    workloadSelector:
+      labels:
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}" # restricts pods to which this Sidecar applies
+    egress:
+    - hosts: ["~/*"] # routing table; by default does not control any outgoing connections
+
+################################################################################
+# Service configuration for the application                                     #
+################################################################################
+
+service:
+  # Enable Service resource for the application
+  enable: true
+  # Additional service labels, e.g. for Deckhouse Prometheus scraping
+  serviceLabels:
+    prometheus.deckhouse.io/custom-target: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  # List of pod ports exposed through the service
+  servicePorts:
+  # Service port
+  - port: 9878
+    # Port name in the pod
+    name: grpc-app
+    # Protocol for this port
+    protocol: TCP
+  - port: 9999
+    name: http-metrics
+    protocol: TCP
+
+################################################################################
+# Deployment configuration for the application                                  #
+################################################################################
+
+deployment:
+  # Enable Deployment resource for the application
+  enable: true
+  annotations:
+    pod-reloader.deckhouse.io/auto: "true"
+  podAnnotations: {}
+  # Number of replicas, ignoring HPA (recommended = minReplicas)
+  replicas: "{{ tpl ($.Values.hpa.minReplicas) $ }}"
+  # Pod update strategy
+  strategy:
+    type: RollingUpdate
+  # Container image for the main application container
+  podImage: IMAGE_NAME
+  # Resource requests/limits for the main container
+  resources:
+    # Resources required for stable application operation
+    requests:
+      memory: "{{ tpl ($.Values.vpa.maxAllowed.memory) $ }}"
+      cpu: "{{ tpl ($.Values.vpa.maxAllowed.cpu) $ }}"
+    # Maximum resources that can be consumed by the application
+    limits:
+      memory: "{{ tpl ($.Values.vpa.maxAllowed.memory) $ }}"
+  # Liveness probe configuration
+  livenessProbe:
+    tcpSocket:
+      port: 9878
+    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  # Readiness probe configuration
+  readinessProbe:
+    tcpSocket:
+      port: 9878
+    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 20
+  # Startup probe to ensure the service has started
+  startupProbe:
+    tcpSocket:
+      port: 9878
+    failureThreshold: 90
+    periodSeconds: 20
+  # Maximum time for graceful shutdown after receiving SIGTERM
+  terminationGracePeriodSeconds: 30
+  # Pod topology spread constraints across the cluster
+  topologySpreadConstraints:
+  - maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
+        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
+        app.kubernetes.io/instance: "{{ $.Release.Name }}"
+    topologyKey: topology.kubernetes.io/region
+  - maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
+        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
+        app.kubernetes.io/instance: "{{ $.Release.Name }}"
+    topologyKey: topology.kubernetes.io/zone
+  - maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
+        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
+        app.kubernetes.io/instance: "{{ $.Release.Name }}"
+    topologyKey: kubernetes.io/hostname
+  # Volumes attached to the pod
+  volumes:
+  - name: tz-config
+    hostPath:
+      path: /usr/share/zoneinfo/Europe/Moscow
+  # Volume mounts for the main container
+  volumeMounts:
+  - name: tz-config
+    mountPath: /etc/localtime
+  # Environment configuration from ConfigMap
+  envFrom:
+  - configMapRef:
+      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-envs"
+  # Ports exposed by the main container
+  containerPorts:
+    # Port where the application listens in the container
+  - containerPort: 9878
+    # Port name used by the Service
+    name: grpc-app
+    # Protocol for this port
+    protocol: TCP
+  # Port where application metrics are exposed
+  - containerPort: 9999
+  # Port name used by the Service for metrics
+    name: http-app
+  # Protocol for this port
+    protocol: TCP
+
+################################################################################
+# StatefulSet configuration for the application                                 #
+################################################################################
+
+statefulset:
+  # Enable StatefulSet resource for the application
+  enable: false
+  annotations:
+    pod-reloader.deckhouse.io/auto: "true"
+  podAnnotations: {}
+  # Pod management policy within the StatefulSet
+  podManagementPolicy: Parallel
+  # Number of replicas, ignoring HPA (recommended = minReplicas)
+  replicas: "{{ tpl ($.Values.hpa.minReplicas) $ }}"
+  # Strategy for updating pods in the StatefulSet
+  updateStrategy:
+    type: RollingUpdate
+  # Container image for the main stateful container
+  podImage: IMAGE_NAME
+  # Command for the main container (map with {command: [], args: []})
+  podCommand: {}
+  # Resource requirements for the main container
+  resources:
+    # Resources required for stable operation
+    requests:
+      cpu: "{{ tpl ($.Values.vpa.maxAllowed.cpu) $ }}"
+      memory: "{{ tpl ($.Values.vpa.maxAllowed.memory) $ }}"
+    # Maximum allowed resources
+    limits:
+      memory: "{{ tpl ($.Values.vpa.maxAllowed.memory) $ }}"
+  # Liveness probe configuration
+  livenessProbe:
+    tcpSocket:
+      port: 9878
+    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  # Readiness probe configuration
+  readinessProbe:
+    tcpSocket:
+      port: 9878
+    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  # Startup probe to ensure the service has started
+  startupProbe:
+    tcpSocket:
+      port: 9878
+    failureThreshold: 90
+    periodSeconds: 5
+  # Maximum time for graceful shutdown after receiving SIGTERM
+  terminationGracePeriodSeconds: 30
+  # Pod topology spread constraints across the cluster
+  topologySpreadConstraints:
+  - maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
+        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
+        app.kubernetes.io/instance: "{{ $.Release.Name }}"
+    topologyKey: topology.kubernetes.io/region
+  - maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
+        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
+        app.kubernetes.io/instance: "{{ $.Release.Name }}"
+    topologyKey: topology.kubernetes.io/zone
+  - maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
+        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
+        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
+        app.kubernetes.io/instance: "{{ $.Release.Name }}"
+    topologyKey: kubernetes.io/hostname
+  # Volumes attached to the pod
+  volumes:
+  - name: tz-config
+    hostPath:
+      path: /usr/share/zoneinfo/Europe/Moscow
+  # Volume mounts for the main container
+  volumeMounts:
+  - name: tz-config
+    mountPath: /etc/localtime
+  # Environment configuration from ConfigMap
+  envFrom:
+  - configMapRef:
+      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-envs"
+  # Ports exposed by the main container
+  containerPorts:
+    # Port where the application listens in the container
+    - containerPort: 9878
+      # Port name used by the Service
+      name: grpc-app
+      # Protocol for this port
+      protocol: TCP
+    # Port where application metrics are exposed
+    - containerPort: 9999
+      # Port name used by the Service for metrics
+      name: http-app
+      # Protocol for this port
+      protocol: TCP
+
+################################################################################
+# HPA configuration for the application (Deckhouse only)                        #
+################################################################################
+
+hpa:
+  # Enable HorizontalPodAutoscaler for the application
+  enable: false
+  # Minimum number of pod replicas
+  minReplicas: "1"
+  # Maximum number of pod replicas
+  maxReplicas: "3"
+  # Pod metrics configuration
+  podMetric:
+    query: round(100* (avg by(<<.GroupBy>>) (rate(your_metric{<<.LabelMatchers>>}[2m]))))
+    averageValue: "60"
+  # Scaling behavior configuration
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 1800
+
+################################################################################
+# VPA configuration for the application                                         #
+################################################################################
+
+vpa:
+  # Enable VerticalPodAutoscaler for the application
+  enable: false
+  # Minimum number of replicas before pods can be restarted with new RAM/CPU values
+  minReplicas: "1"
+  # Minimum allowed resources for pods
+  minAllowed:
+    memory: "100Mi"
+    cpu: "100m"
+  # Maximum allowed resources for pods
+  maxAllowed:
+    memory: "2Gi"
+    cpu: "1000m"
+  # Controlled resources and values
+  controlledValues: "RequestsAndLimits"
+  controlledResources: ["memory", "cpu"]
+  recommenders: []
+  # - name: redup
+
+################################################################################
+# PersistentVolumeClaim configuration for the application                       #
+################################################################################
+
+persistentvolumeclaim:
+  # Enable PersistentVolumeClaim for the application
+  enable: false
+  name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}"
+
+################################################################################
+# PersistentVolume configuration for the application                            #
+################################################################################
+
+persistentvolume:
+  # Enable PersistentVolume for the application
+  enable: false
+  
+################################################################################
+# PodDisruptionBudget configuration for the application                         #
+################################################################################
+
+pdb:
+  # Enable PodDisruptionBudget for the application
+  enable: false
+  # Minimum number of pods that must remain available
+  minAvailable: "50%"
+
+################################################################################
+# ConfigMap configuration for the application                                   #
+################################################################################
+
+configMap:
+  # Enable ConfigMap with configuration files for the application
+  enable: true
+  # Map of configuration files
+  data: {}
+    # config.yaml:
+    #   service: {}
+        
+################################################################################
+# Environment ConfigMap configuration for the application                       #
+################################################################################
+
+configEnv:
+  # Enable ConfigMap with environment variables for the application
+  enable: true
+  # Map of environment variables
+  data: {}
+    # MY_ENV: "10"
+
+################################################################################
+# Extra Kubernetes manifests to deploy with the application                     #
+################################################################################
+
+extraDeploy:
+  enable: false
+  data: []

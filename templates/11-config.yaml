@@ -1,0 +1,59 @@
+{{- if and $.Values.configMap $.Values.configMap.enable }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.configMap.data }}
+data:
+{{- range $name, $value := $.Values.configMap.data }}
+{{ $name | indent 2 }} : |-
+{{- if kindIs "map" $value }}
+{{ tpl (toYaml $value) $ | indent 4 }}
+{{- else }}
+{{ tpl ($value) $ | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if $.Values.configMap.binaryData }}
+binaryData:
+{{- range $name, $value := $.Values.configMap.binaryData }}
+{{ $name | indent 2 }} : |-
+{{- if kindIs "map" $value }}
+{{ tpl (toYaml $value) $ | indent 4 }}
+{{- else }}
+{{ tpl ($value) $ | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if and $.Values.configEnv $.Values.configEnv.enable }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-envs
+{{- if $.Values.configEnv.data }}
+data:
+{{- range $name, $value := $.Values.configEnv.data }}
+{{ $name | indent 2 }} : |-
+{{- if kindIs "map" $value }}
+{{ tpl (toYaml $value) $ | indent 4 }}
+{{- else }}
+{{ tpl ($value) $ | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if $.Values.configEnv.binaryData }}
+binaryData:
+{{- range $name, $value := $.Values.configEnv.binaryData }}
+{{ $name | indent 2 }} : |-
+{{- if kindIs "map" $value }}
+{{ tpl (toYaml $value) $ | indent 4 }}
+{{- else }}
+{{ tpl ($value) $ | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,74 @@
+{{- if and $.Values.persistentvolume $.Values.persistentvolume.enable }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-{{ $.Release.Namespace }}-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}
+{{- if $.Values.persistentvolume.annotations }}
+  annotations:
+{{ tpl (toYaml $.Values.persistentvolume.annotations) $ | indent 8 }}
+{{- end }}
+spec:
+{{- if $.Values.persistentvolume.capacity }}
+  capacity:
+{{ tpl (toYaml $.Values.persistentvolume.capacity) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.persistentvolume.csi }}
+  csi:
+{{ tpl (toYaml $.Values.persistentvolume.csi) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.persistentvolume.hostPath }}
+  hostPath:
+{{ tpl (toYaml $.Values.persistentvolume.hostPath) $ | indent 4 }}
+{{- end }}
+{{- if $.Values.persistentvolume.local }}
+  local:
+{{ tpl (toYaml $.Values.persistentvolume.local) $ | indent 4 }}
+{{- end }}
+{{- if $.Values.persistentvolume.volumeMode }}
+  volumeMode: {{ $.Values.persistentvolume.volumeMode }}
+{{- end }}
+{{- if $.Values.persistentvolume.accessModes }}
+  accessModes:
+{{ tpl (toYaml $.Values.persistentvolume.accessModes) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.persistentvolume.persistentVolumeReclaimPolicy }}
+  persistentVolumeReclaimPolicy: {{ tpl (toYaml $.Values.persistentvolume.persistentVolumeReclaimPolicy) $ }}
+{{- end }}
+{{- if $.Values.persistentvolume.nodeAffinity }}
+  nodeAffinity:
+{{ tpl (toYaml $.Values.persistentvolume.nodeAffinity) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.persistentvolume.storageClassName }}
+  storageClassName: {{ $.Values.persistentvolume.storageClassName }}
+{{- end }}
+{{- if $.Values.persistentvolume.volumeMode }}
+  volumeMode:
+{{ tpl (toYaml $.Values.persistentvolume.volumeMode) $ | indent 8 }}
+{{- end }}
+{{- end }}
+
+{{- if and $.Values.persistentvolumeclaim $.Values.persistentvolumeclaim.enable }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ tpl ($.Values.persistentvolumeclaim.name) $ }}
+{{- if $.Values.persistentvolumeclaim.annotations }}
+  annotations:
+{{ tpl (toYaml $.Values.persistentvolumeclaim.annotations) $ | indent 8 }}
+{{- end }}
+spec:
+{{- if $.Values.persistentvolume.accessModes }}
+  accessModes:
+{{ tpl (toYaml $.Values.persistentvolumeclaim.accessModes) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.persistentvolumeclaim.resources }}
+  resources:
+{{ tpl (toYaml $.Values.persistentvolumeclaim.resources) $ | indent 8 }}
+{{- end }}
+  volumeName: pv-{{ $.Release.Namespace }}-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}
+{{- if $.Values.persistentvolumeclaim.storageClassName }}
+  storageClassName: {{ $.Values.persistentvolumeclaim.storageClassName }}
+{{- end }}
+{{- end }}

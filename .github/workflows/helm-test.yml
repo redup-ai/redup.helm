@@ -1,0 +1,30 @@
+name: Test Helm Package
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: helm lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v4
+      with:
+        version: v3.15.1
+
+    - name: Prepare Chart.yaml and values.yaml placeholders
+      run: |
+        # Fill Chart.yaml placeholders
+        sed -i 's/^name: REPO_NAME$/name: redup.python.service.example/' Chart.yaml
+        sed -i 's/^version: VERSION_REPLACE$/version: 0.0.0-dev/' Chart.yaml
+
+        # Fill values.yaml placeholders
+        sed -i 's/^  registry: REGISTRY_NAME$/  registry: docker.io/' values.yaml
+        sed -i 's/^  package: REPO_NAME$/  package: redup.python.service.example/' values.yaml
+        sed -i 's/^  podImage: IMAGE_NAME$/  podImage: redup.python.service.example:0.0.0-dev/' values.yaml
+
+    - name: Lint Helm chart
+      run: |
+        helm lint . --strict

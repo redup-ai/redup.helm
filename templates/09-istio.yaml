@@ -1,0 +1,43 @@
+{{- if and $.Values.istio $.Values.istio.enable }}
+
+{{- if $.Values.istio.VirtualService }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+{{ tpl (toYaml $.Values.istio.VirtualService) $ | indent 2 }}
+{{- end }}
+
+{{- if $.Values.istio.DestinationRule }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+{{ tpl (toYaml $.Values.istio.DestinationRule) $ | indent 2 }}
+{{- end }}
+
+{{- if $.Values.istio.Sidecar }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+{{ tpl (toYaml $.Values.istio.Sidecar) $ | indent 2 }}
+{{- end }}
+
+{{- if $.Values.istio.PeerAuthentication }}
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+{{ tpl (toYaml $.Values.istio.PeerAuthentication) $ | indent 2 }}
+{{- end }}
+
+{{- end }}

@@ -1,0 +1,66 @@
+{{- if and $.Values.ingress $.Values.ingress.enable }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+{{- if $.Values.ingress.annotations }}
+  annotations:
+{{ tpl (toYaml $.Values.ingress.annotations) $ | indent 8 }}
+{{- end }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+  ingressClassName: {{ tpl $.Values.ingress.controller $ }}
+  rules:
+{{- range $_, $host := $.Values.ingress.hosts }}
+  - host: {{ tpl $host $ }}
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+            port:
+              name: {{ $.Values.ingress.service.port }}
+{{- end }}
+{{- if (index $.Values.ingress "tls-secret-name") }}
+  tls:
+  - hosts:
+{{- range $_, $host := $.Values.ingress.hosts }}
+    - {{ tpl $host $ }}
+{{- end }}
+    secretName: {{ tpl (index $.Values.ingress "tls-secret-name") $ }}
+{{- end }}
+{{- range $_, $extrahost := $.Values.ingress.extraIngresses }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+{{- if $extrahost.annotations }}
+  annotations:
+{{ tpl (toYaml $extrahost.annotations) $ | indent 8 }}
+{{- end }}
+  name: {{ tpl $extrahost.name $ }}
+spec:
+  ingressClassName: {{ tpl $extrahost.controller $ }}
+  rules:
+{{- range $_, $host := $extrahost.hosts }}
+  - host: {{ tpl $host $ }}
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ tpl $extrahost.service.name $ }}
+            port:
+              name: {{ tpl $extrahost.service.port $ }}
+{{- end }}
+{{- if (index $extrahost "tls-secret-name") }}
+  tls:
+  - hosts:
+{{- range $_, $host := $extrahost.hosts }}
+    - {{ tpl $host $ }}
+{{- end }}
+    secretName: {{ tpl (index $extrahost "tls-secret-name") $ }}
+{{- end }}
+{{- end }}
+{{- end }}

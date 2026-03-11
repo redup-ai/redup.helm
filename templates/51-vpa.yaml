@@ -1,0 +1,49 @@
+{{- if and $.Values.vpa $.Values.vpa.enable }}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+{{- if and $.Values.deployment $.Values.deployment.enable}}
+    kind: Deployment
+{{- else if and $.Values.statefulset $.Values.statefulset.enable}}
+    kind: StatefulSet
+{{- end}}
+    name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  updatePolicy:
+    updateMode: "Auto"
+{{- if $.Values.vpa.minReplicas }}
+    minReplicas: {{ tpl ($.Values.vpa.minReplicas) $ }}
+{{- end }}
+{{- if $.Values.vpa.recommenders }}
+  {{- with $.Values.vpa.recommenders  }}
+  recommenders:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+  resourcePolicy:
+    containerPolicies:
+    - containerName: "*"
+      mode: "Off"
+    - containerName: main
+      minAllowed:
+        memory: {{ tpl ($.Values.vpa.minAllowed.memory) $ }}
+        cpu: {{ tpl ($.Values.vpa.minAllowed.cpu) $ }}
+      maxAllowed:
+        memory: {{ tpl ($.Values.vpa.maxAllowed.memory) $ }}
+        cpu: {{ tpl ($.Values.vpa.maxAllowed.cpu) $ }}
+{{- if $.Values.vpa.controlledResources }}
+      {{- with $.Values.vpa.controlledResources  }}
+      controlledResources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- else }}
+      controlledResources: ["memory", "cpu"]
+{{- end }}
+{{- if $.Values.vpa.controlledValues }}
+      controlledValues: {{ tpl ($.Values.vpa.controlledValues) $ }}
+{{- end }}
+{{- end }}

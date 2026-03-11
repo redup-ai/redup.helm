@@ -36,17 +36,17 @@ ingress:
   # List of hostnames that route traffic to the service
   hosts:
     # Example: <service-name>-<namespace-name>.example.com
-  - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-{{ $.Release.Namespace }}.{{ $.Values.ingress.domain }}"
+  - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}-{{ $.Release.Namespace }}.{{ $.Values.ingress.domain }}"
   extraIngresses: []
   # - hosts:
-  #   - "metrics-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-{{ $.Release.Namespace }}.{{ $.Values.ingress.domain }}"
+  #   - "metrics-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}-{{ $.Release.Namespace }}.{{ $.Values.ingress.domain }}"
   #   service:
   #     port: "http-metrics"
-  #     name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+  #     name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
   #   annotations: {}
   #   tls-secret-name: ""
   #   controller: "nginx"
-  #   name: "metrics-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+  #   name: "metrics-{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
 
 ################################################################################
 # Istio traffic configuration for the application                               #
@@ -60,7 +60,7 @@ istio:
   # List of hosts to which Istio rules apply
     hosts:
     # Example: <service-name>.<namespace-name>.svc.cluster.local
-    - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local"
+    - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
     # HTTP routing rules for intercepted traffic
     http:
     # Rule name
@@ -74,19 +74,19 @@ istio:
     # Destination address for the routed traffic
       route:
       - destination:
-          host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local"
+          host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
         # Destination subset (version of pods)
           subset: v1
       timeout: 300s
   # DestinationRule configuration
   DestinationRule:
     # Rule for a specific host
-    host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local"
+    host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
   # Subsets that select pods for traffic routing
     subsets:
     # Pod labels used to select pods in the cluster
     - labels:
-        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
     # Subset name (version label)
       name: v1
     # Connection policy
@@ -108,7 +108,7 @@ istio:
   PeerAuthentication:
     selector:
       matchLabels:
-        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
     # TLS mode between Istio sidecars
     mtls:
       mode: DISABLE
@@ -116,7 +116,7 @@ istio:
   Sidecar:
     workloadSelector:
       labels:
-        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}" # restricts pods to which this Sidecar applies
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}" # restricts pods to which this Sidecar applies
     egress:
     - hosts: ["~/*"] # routing table; by default does not control any outgoing connections
 
@@ -129,7 +129,7 @@ service:
   enable: true
   # Additional service labels, e.g. for Deckhouse Prometheus scraping
   serviceLabels:
-    prometheus.deckhouse.io/custom-target: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+    prometheus.deckhouse.io/custom-target: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
   # List of pod ports exposed through the service
   servicePorts:
   # Service port
@@ -196,7 +196,7 @@ deployment:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
         app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
         app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
         app.kubernetes.io/instance: "{{ $.Release.Name }}"
@@ -205,7 +205,7 @@ deployment:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
         app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
         app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
         app.kubernetes.io/instance: "{{ $.Release.Name }}"
@@ -214,7 +214,7 @@ deployment:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
         app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
         app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
         app.kubernetes.io/instance: "{{ $.Release.Name }}"
@@ -231,7 +231,7 @@ deployment:
   # Environment configuration from ConfigMap
   envFrom:
   - configMapRef:
-      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-envs"
+      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}-envs"
   # Ports exposed by the main container
   containerPorts:
     # Port where the application listens in the container
@@ -305,7 +305,7 @@ statefulset:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
         app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
         app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
         app.kubernetes.io/instance: "{{ $.Release.Name }}"
@@ -314,7 +314,7 @@ statefulset:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
         app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
         app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
         app.kubernetes.io/instance: "{{ $.Release.Name }}"
@@ -323,7 +323,7 @@ statefulset:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}"
+        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
         app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
         app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
         app.kubernetes.io/instance: "{{ $.Release.Name }}"
@@ -340,7 +340,7 @@ statefulset:
   # Environment configuration from ConfigMap
   envFrom:
   - configMapRef:
-      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-envs"
+      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}-envs"
   # Ports exposed by the main container
   containerPorts:
     # Port where the application listens in the container
@@ -406,7 +406,7 @@ vpa:
 persistentvolumeclaim:
   # Enable PersistentVolumeClaim for the application
   enable: false
-  name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}"
+  name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}"
 
 ################################################################################
 # PersistentVolume configuration for the application                            #

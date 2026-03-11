@@ -1,4 +1,4 @@
-{{- if $.Values.service and $.Values.service.enable }}
+{{- if and $.Values.service $.Values.service.enable }}
 ---
 apiVersion: v1
 kind: Service

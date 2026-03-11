@@ -2,9 +2,6 @@
 
 ![Helm Test status](https://github.com/redup-ai/redup.helm/actions/workflows/helm-test.yml/badge.svg?branch=master)
 
-
-# Usage
-
 This repository provides a template for creating a Helm chart for any application. The repository assumes that we have an image with the application in some registry.
 
 **Note:** This template is intended for deployment in a Kubernetes cluster based on [Deckhouse](https://github.com/deckhouse/deckhouse) (e.g. HPA with PodMetric, pod-reloader annotations, and other Deckhouse-specific options are used by default).

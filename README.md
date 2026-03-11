@@ -1,3 +1,8 @@
+# redup.helm
+
+![Helm Test status](https://github.com/redup-ai/redup.helm/actions/workflows/helm-test.yml/badge.svg?branch=master)
+
+
 # Usage
 
 This repository provides a template for creating a Helm chart for any application. The repository assumes that we have an image with the application in some registry.

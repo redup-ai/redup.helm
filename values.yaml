@@ -129,7 +129,7 @@ service:
   enable: true
   # Additional service labels, e.g. for Deckhouse Prometheus scraping
   serviceLabels:
-    prometheus.deckhouse.io/custom-target: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    prometheus.deckhouse.io/custom-target: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}"
   # List of pod ports exposed through the service
   servicePorts:
   # Service port

@@ -72,6 +72,11 @@ data:
                       timeout: 3600s
 {{- end }}
                   - match:
+                      path: /grpc-gateway
+                    redirect:
+                      path_redirect: /grpc-gateway/
+                      response_code: 301
+                  - match:
                       prefix: /grpc-gateway
                     route:
                       cluster: swagger

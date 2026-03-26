@@ -62,10 +62,6 @@ grpcGateway:
     # Source files inside artifacts image
     gatewayPbPath: /artifacts/gateway.pb
     apiJsonPath: /artifacts/api.json
-    # Shared mount path in pod for copied artifacts
-    mountPath: /opt/grpc-gateway/artifacts
-    # Volume name for copied artifacts
-    volumeName: grpc-gateway-artifacts
   envoy:
     image: envoyproxy/envoy:v1.34.4
     imagePullPolicy: IfNotPresent

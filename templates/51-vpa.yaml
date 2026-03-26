@@ -11,6 +11,8 @@ spec:
     kind: Deployment
 {{- else if and $.Values.statefulset $.Values.statefulset.enable}}
     kind: StatefulSet
+{{- else if and $.Values.daemonset $.Values.daemonset.enable}}
+    kind: DaemonSet
 {{- end}}
     name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
   updatePolicy:

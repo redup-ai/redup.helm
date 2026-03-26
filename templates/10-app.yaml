@@ -247,6 +247,120 @@ spec:
 {{- end }}
 {{- end }}
 
+{{- if and $.Values.daemonset $.Values.daemonset.enable }}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+    app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+    app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+{{- if $.Values.daemonset.annotations }}
+  annotations:
+{{ tpl (toYaml $.Values.daemonset.annotations) $ | indent 8 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+  template:
+    metadata:
+      labels:
+        app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        version: {{ $.Chart.Version | replace "+" "_" }}
+        app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}
+        app.kubernetes.io/version: {{ $.Chart.Version | replace "+" "_" }}
+        app.kubernetes.io/component: {{ tpl ($.Values.global.package) $ }}
+        app.kubernetes.io/part-of: {{ $.Release.Namespace }}
+{{- if $.Values.daemonset.podLabels }}
+{{ tpl (toYaml $.Values.daemonset.podLabels) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.podAnnotations }}
+      annotations:
+{{ tpl (toYaml $.Values.daemonset.podAnnotations) $ | indent 8 }}
+{{- end }}
+    spec:
+{{- if $.Values.daemonset.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.daemonset.terminationGracePeriodSeconds }}
+{{- end }}
+{{- if $.Values.daemonset.priorityClassName }}
+      priorityClassName: {{ tpl (toYaml $.Values.daemonset.priorityClassName) $ }}
+{{- end }}
+{{- if $.Values.daemonset.nodeSelector }}
+      nodeSelector:
+{{ tpl (toYaml $.Values.daemonset.nodeSelector) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.tolerations }}
+      tolerations:
+{{ tpl (toYaml $.Values.daemonset.tolerations) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.imagePullSecrets }}
+      imagePullSecrets:
+{{ tpl (toYaml $.Values.daemonset.imagePullSecrets) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.volumes }}
+      volumes:
+{{ tpl (toYaml $.Values.daemonset.volumes) $ | indent 6 }}
+{{- end }}
+{{- if $.Values.daemonset.initContainers }}
+      initContainers:
+{{ tpl (toYaml $.Values.daemonset.initContainers) $ | indent 6 }}
+{{- end }}
+{{- if $.Values.daemonset.kubeScheduler }}
+      schedulerName: {{ $.Values.daemonset.kubeScheduler }}
+{{- end }}
+      containers:
+{{- if $.Values.daemonset.containers }}
+{{ tpl (toYaml $.Values.daemonset.containers) $ | indent 6 }}
+{{- end }}
+      - name: main
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.daemonset.podImage) $ }}
+{{- if $.Values.daemonset.imagePullPolicy }}
+        imagePullPolicy: {{ $.Values.daemonset.imagePullPolicy }}
+{{- end }}
+{{- if $.Values.daemonset.podCommand }}
+{{ tpl (toYaml $.Values.daemonset.podCommand) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.podArgs }}
+{{ tpl (toYaml $.Values.daemonset.podArgs) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.livenessProbe }}
+        livenessProbe:
+{{ tpl (toYaml $.Values.daemonset.livenessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.daemonset.readinessProbe }}
+        readinessProbe:
+{{ tpl (toYaml $.Values.daemonset.readinessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.daemonset.startupProbe }}
+        startupProbe:
+{{ tpl (toYaml $.Values.daemonset.startupProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.daemonset.resources }}
+        resources:
+{{ tpl (toYaml $.Values.daemonset.resources) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.daemonset.containerPorts }}
+        ports:
+{{ tpl (toYaml $.Values.daemonset.containerPorts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.volumeMounts }}
+        volumeMounts:
+{{ tpl (toYaml $.Values.daemonset.volumeMounts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.envFrom }}
+        envFrom:
+{{ tpl (toYaml $.Values.daemonset.envFrom) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.daemonset.env }}
+        env:
+{{ tpl (toYaml $.Values.daemonset.env) $ | indent 8 }}
+{{- end }}
+{{- end }}
+
 {{- if and $.Values.statefulset $.Values.statefulset.enable }}
 ---
 apiVersion: apps/v1

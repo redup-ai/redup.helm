@@ -59,7 +59,7 @@ metadata:
 {{ tpl (toYaml $.Values.persistentvolumeclaim.annotations) $ | indent 8 }}
 {{- end }}
 spec:
-{{- if $.Values.persistentvolume.accessModes }}
+{{- if $.Values.persistentvolumeclaim.accessModes }}
   accessModes:
 {{ tpl (toYaml $.Values.persistentvolumeclaim.accessModes) $ | indent 8 }}
 {{- end }}

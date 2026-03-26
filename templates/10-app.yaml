@@ -23,9 +23,16 @@ spec:
 {{- if $.Values.service.clusterIP }}
   clusterIP: {{ tpl (toYaml $.Values.service.clusterIP) $ }}
 {{- end }}
-{{- if $.Values.service.servicePorts }}
+{{- if or $.Values.service.servicePorts (and $.Values.grpcGateway $.Values.grpcGateway.enable) }}
   ports:
+{{- if $.Values.service.servicePorts }}
 {{ tpl (toYaml $.Values.service.servicePorts) $ | indent 2 }}
+{{- end }}
+{{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
+  - port: {{ $.Values.grpcGateway.envoy.port }}
+    name: {{ default "http-gateway" $.Values.grpcGateway.ingress.servicePort }}
+    protocol: TCP
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -99,18 +106,99 @@ spec:
       imagePullSecrets:
 {{ tpl (toYaml $.Values.deployment.imagePullSecrets) $ | indent 8 }}
 {{- end }}
-{{- if $.Values.deployment.volumes }}
+{{- if or $.Values.deployment.volumes (and $.Values.grpcGateway $.Values.grpcGateway.enable) }}
       volumes:
+{{- if $.Values.deployment.volumes }}
 {{ tpl (toYaml $.Values.deployment.volumes) $ | indent 6 }}
 {{- end }}
-{{- if $.Values.deployment.initContainers }}
+{{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
+      - name: grpc-gateway-artifacts
+        emptyDir: {}
+      - name: grpc-gateway-envoy-config
+        configMap:
+          name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-grpc-gateway-envoy
+{{- end }}
+{{- end }}
+{{- if or $.Values.deployment.initContainers (and $.Values.grpcGateway $.Values.grpcGateway.enable) }}
       initContainers:
+{{- if $.Values.deployment.initContainers }}
 {{ tpl (toYaml $.Values.deployment.initContainers) $ | indent 6 }}
+{{- end }}
+{{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
+      - name: grpc-gateway-init-copy
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.grpcGateway.artifacts.image) $ }}
+{{- if $.Values.grpcGateway.artifacts.imagePullPolicy }}
+        imagePullPolicy: {{ $.Values.grpcGateway.artifacts.imagePullPolicy }}
+{{- end }}
+        command:
+        - /bin/sh
+        - -ec
+        args:
+        - |
+          cp {{ $.Values.grpcGateway.artifacts.gatewayPbPath }} /opt/grpc-gateway/artifacts/gateway.pb
+          cp {{ $.Values.grpcGateway.artifacts.apiJsonPath }} /opt/grpc-gateway/artifacts/api.json
+        volumeMounts:
+        - name: grpc-gateway-artifacts
+          mountPath: /opt/grpc-gateway/artifacts
+{{- end }}
 {{- end }}
 {{- if $.Values.deployment.kubeScheduler }}
       schedulerName: {{ $.Values.deployment.kubeScheduler }}
 {{- end }}
       containers:
+{{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
+      - name: grpc-gateway-envoy
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.grpcGateway.envoy.image) $ }}
+{{- if $.Values.grpcGateway.envoy.imagePullPolicy }}
+        imagePullPolicy: {{ $.Values.grpcGateway.envoy.imagePullPolicy }}
+{{- end }}
+{{- if $.Values.grpcGateway.envoy.command }}
+        command:
+{{ tpl (toYaml $.Values.grpcGateway.envoy.command) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.grpcGateway.envoy.args }}
+        args:
+{{ tpl (toYaml $.Values.grpcGateway.envoy.args) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.grpcGateway.envoy.resources }}
+        resources:
+{{ tpl (toYaml $.Values.grpcGateway.envoy.resources) $ | indent 10 }}
+{{- end }}
+        ports:
+        - containerPort: {{ $.Values.grpcGateway.envoy.port }}
+          name: http-gateway
+          protocol: TCP
+        volumeMounts:
+        - name: grpc-gateway-artifacts
+          mountPath: /opt/grpc-gateway/artifacts
+        - name: grpc-gateway-envoy-config
+          mountPath: /etc/envoy/envoy.yaml
+          subPath: envoy.yaml
+      - name: grpc-gateway-swagger
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.grpcGateway.swagger.image) $ }}
+{{- if $.Values.grpcGateway.swagger.imagePullPolicy }}
+        imagePullPolicy: {{ $.Values.grpcGateway.swagger.imagePullPolicy }}
+{{- end }}
+{{- if $.Values.grpcGateway.swagger.command }}
+        command:
+{{ tpl (toYaml $.Values.grpcGateway.swagger.command) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.grpcGateway.swagger.args }}
+        args:
+{{ tpl (toYaml $.Values.grpcGateway.swagger.args) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.grpcGateway.swagger.resources }}
+        resources:
+{{ tpl (toYaml $.Values.grpcGateway.swagger.resources) $ | indent 10 }}
+{{- end }}
+        ports:
+        - containerPort: {{ $.Values.grpcGateway.swagger.port }}
+          name: http-swagger
+          protocol: TCP
+        volumeMounts:
+        - name: grpc-gateway-artifacts
+          mountPath: /opt/grpc-gateway/artifacts
+{{- end }}
 {{- if $.Values.deployment.containers }}
 {{ tpl (toYaml $.Values.deployment.containers) $ | indent 6 }}
 {{- end }}

@@ -21,6 +21,17 @@ spec:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
             port:
               name: {{ $.Values.ingress.service.port }}
+{{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
+{{- range $_, $path := $.Values.grpcGateway.ingress.paths }}
+      - path: {{ tpl $path.path $ }}
+        pathType: {{ $path.pathType }}
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- if (index $.Values.ingress "tls-secret-name") }}
   tls:

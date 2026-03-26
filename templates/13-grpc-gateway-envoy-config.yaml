@@ -75,7 +75,7 @@ data:
                       path: /grpc-gateway
                     redirect:
                       path_redirect: /grpc-gateway/
-                      response_code: 301
+                      response_code: MOVED_PERMANENTLY
                   - match:
                       prefix: /grpc-gateway
                     route:

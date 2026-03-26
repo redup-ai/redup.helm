@@ -15,38 +15,12 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-{{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
-      - path: /grpc.reflection.v1.ServerReflection
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
-            port:
-              name: {{ $.Values.ingress.service.port }}
-      - path: /grpc.reflection.v1alpha.ServerReflection
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
-            port:
-              name: {{ $.Values.ingress.service.port }}
-{{- range $_, $service := $.Values.grpcGateway.envoy.transcoderServices }}
-      - path: /{{ $service }}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
-            port:
-              name: {{ $.Values.ingress.service.port }}
-{{- end }}
-{{- else }}
       - pathType: ImplementationSpecific
         backend:
           service:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
             port:
               name: {{ $.Values.ingress.service.port }}
-{{- end }}
 {{- end }}
 {{- if (index $.Values.ingress "tls-secret-name") }}
   tls:
@@ -89,6 +63,7 @@ spec:
     secretName: {{ tpl (index $extrahost "tls-secret-name") $ }}
 {{- end }}
 {{- end }}
+
 {{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
 ---
 apiVersion: networking.k8s.io/v1
@@ -106,7 +81,7 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-      - path: /
+      - path: /grpc-gateway
         pathType: Prefix
         backend:
           service:

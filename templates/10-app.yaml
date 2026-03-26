@@ -137,6 +137,14 @@ spec:
         - |
           cp {{ $.Values.grpcGateway.artifacts.gatewayPbPath }} /opt/grpc-gateway/artifacts/gateway.pb
           cp {{ $.Values.grpcGateway.artifacts.apiJsonPath }} /opt/grpc-gateway/artifacts/api.json
+          if grep -Eq '"servers"[[:space:]]*:' /opt/grpc-gateway/artifacts/api.json; then
+            sed -E '0,/"servers"[[:space:]]*:[[:space:]]*\[[^]]*\]/{s//"servers":[{"url":"\/grpc-gateway"}]/}' \
+              /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
+          else
+            sed -E '0,/\{/{s//{"servers":[{"url":"\/grpc-gateway"}],/}' \
+              /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
+          fi
+          mv /opt/grpc-gateway/artifacts/api.json.tmp /opt/grpc-gateway/artifacts/api.json
         volumeMounts:
         - name: grpc-gateway-artifacts
           mountPath: /opt/grpc-gateway/artifacts

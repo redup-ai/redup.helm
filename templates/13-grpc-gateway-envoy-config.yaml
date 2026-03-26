@@ -64,14 +64,15 @@ data:
                   domains: ["*"]
                   routes:
                   - match:
-                      prefix: /swagger
+                      prefix: /grpc-gateway/swagger
                     route:
                       cluster: swagger
                       prefix_rewrite: /
                   - match:
-                      prefix: /
+                      prefix: /grpc-gateway
                     route:
                       cluster: grpc
+                      prefix_rewrite: /
                       timeout: 3600s
               http_filters:
               - name: envoy.filters.http.grpc_json_transcoder

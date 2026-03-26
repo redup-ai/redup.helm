@@ -65,7 +65,7 @@ grpcGateway:
   envoy:
     image: envoyproxy/envoy:v1.34.4
     imagePullPolicy: IfNotPresent
-    port: 8080
+    port: 18080
     transcoderServices:
     - change.me.v1.Service
     resources:
@@ -88,7 +88,7 @@ grpcGateway:
   swagger:
     image: swaggerapi/swagger-ui:v5.27.0
     imagePullPolicy: IfNotPresent
-    port: 8081
+    port: 18081
     resources:
       requests:
         memory: "64Mi"

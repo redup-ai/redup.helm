@@ -187,6 +187,9 @@ spec:
         args:
 {{ tpl (toYaml $.Values.grpcGateway.swagger.args) $ | indent 8 }}
 {{- end }}
+        env:
+        - name: PORT
+          value: "{{ $.Values.grpcGateway.swagger.port }}"
 {{- if $.Values.grpcGateway.swagger.resources }}
         resources:
 {{ tpl (toYaml $.Values.grpcGateway.swagger.resources) $ | indent 10 }}

@@ -81,10 +81,8 @@ grpcGateway:
   ingress:
     # Service port for grpcGateway routes in the main ingress
     servicePort: "http-gateway"
-    # Additional routes for envoy/swagger. Base "/" remains mapped to ingress.service.port.
-    paths:
-    - path: /swagger
-      pathType: Prefix
+    # Optional annotations for dedicated gateway ingress
+    annotations: {}
   swagger:
     image: swaggerapi/swagger-ui:v5.27.0
     imagePullPolicy: IfNotPresent

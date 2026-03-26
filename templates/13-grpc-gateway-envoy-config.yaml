@@ -63,17 +63,19 @@ data:
                 - name: app
                   domains: ["*"]
                   routes:
+{{- range $_, $service := $.Values.grpcGateway.envoy.transcoderServices }}
                   - match:
-                      prefix: /grpc-gateway/swagger
+                      prefix: /grpc-gateway/{{ $service }}
                     route:
-                      cluster: swagger
-                      prefix_rewrite: /
+                      cluster: grpc
+                      prefix_rewrite: /{{ $service }}
+                      timeout: 3600s
+{{- end }}
                   - match:
                       prefix: /grpc-gateway
                     route:
-                      cluster: grpc
+                      cluster: swagger
                       prefix_rewrite: /
-                      timeout: 3600s
               http_filters:
               - name: envoy.filters.http.grpc_json_transcoder
                 typed_config:

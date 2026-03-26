@@ -57,7 +57,7 @@ grpcGateway:
   enable: false
   artifacts:
     # Image that contains both gateway.pb and api.json
-    image: IMAGE_NAME
+    podImage: IMAGE_NAME
     imagePullPolicy: IfNotPresent
     # Source files inside artifacts image
     gatewayPbPath: /artifacts/gateway.pb

@@ -126,7 +126,7 @@ spec:
 {{- end }}
 {{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
       - name: grpc-gateway-init-copy
-        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.grpcGateway.artifacts.image) $ }}
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.grpcGateway.artifacts.podImage) $ }}
 {{- if $.Values.grpcGateway.artifacts.imagePullPolicy }}
         imagePullPolicy: {{ $.Values.grpcGateway.artifacts.imagePullPolicy }}
 {{- end }}

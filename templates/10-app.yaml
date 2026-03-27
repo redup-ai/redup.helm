@@ -166,6 +166,49 @@ spec:
       schedulerName: {{ $.Values.deployment.kubeScheduler }}
 {{- end }}
       containers:
+      - name: main
+        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.deployment.podImage) $ }}
+{{- if $.Values.deployment.imagePullPolicy }}
+        imagePullPolicy: {{ $.Values.deployment.imagePullPolicy }}
+{{- end }}
+{{- if $.Values.deployment.podCommand }}
+{{ tpl (toYaml $.Values.deployment.podCommand) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.podArgs }}
+{{ tpl (toYaml $.Values.deployment.podArgs) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.livenessProbe }}
+        livenessProbe:
+{{ tpl (toYaml $.Values.deployment.livenessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.readinessProbe }}
+        readinessProbe:
+{{ tpl (toYaml $.Values.deployment.readinessProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.startupProbe }}
+        startupProbe:
+{{ tpl (toYaml $.Values.deployment.startupProbe) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.resources }}
+        resources:
+{{ tpl (toYaml $.Values.deployment.resources) $ | indent 10 }}
+{{- end }}
+{{- if $.Values.deployment.containerPorts }}
+        ports:
+{{ tpl (toYaml $.Values.deployment.containerPorts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.volumeMounts }}
+        volumeMounts:
+{{ tpl (toYaml $.Values.deployment.volumeMounts) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.envFrom }}
+        envFrom:
+{{ tpl (toYaml $.Values.deployment.envFrom) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.env }}
+        env:
+{{ tpl (toYaml $.Values.deployment.env) $ | indent 8 }}
+{{- end }}
 {{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
       - name: grpc-gateway-envoy
         image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.grpcGateway.envoy.image) $ }}
@@ -236,49 +279,6 @@ spec:
 {{- end }}
 {{- if $.Values.deployment.containers }}
 {{ tpl (toYaml $.Values.deployment.containers) $ | indent 6 }}
-{{- end }}
-      - name: main
-        image: {{ tpl ($.Values.global.registry) $ }}/{{ tpl ($.Values.deployment.podImage) $ }}
-{{- if $.Values.deployment.imagePullPolicy }}
-        imagePullPolicy: {{ $.Values.deployment.imagePullPolicy }}
-{{- end }}
-{{- if $.Values.deployment.podCommand }}
-{{ tpl (toYaml $.Values.deployment.podCommand) $ | indent 8 }}
-{{- end }}
-{{- if $.Values.deployment.podArgs }}
-{{ tpl (toYaml $.Values.deployment.podArgs) $ | indent 8 }}
-{{- end }}
-{{- if $.Values.deployment.livenessProbe }}
-        livenessProbe:
-{{ tpl (toYaml $.Values.deployment.livenessProbe) $ | indent 10 }}
-{{- end }}
-{{- if $.Values.deployment.readinessProbe }}
-        readinessProbe:
-{{ tpl (toYaml $.Values.deployment.readinessProbe) $ | indent 10 }}
-{{- end }}
-{{- if $.Values.deployment.startupProbe }}
-        startupProbe:
-{{ tpl (toYaml $.Values.deployment.startupProbe) $ | indent 10 }}
-{{- end }}
-{{- if $.Values.deployment.resources }}
-        resources:
-{{ tpl (toYaml $.Values.deployment.resources) $ | indent 10 }}
-{{- end }}
-{{- if $.Values.deployment.containerPorts }}
-        ports:
-{{ tpl (toYaml $.Values.deployment.containerPorts) $ | indent 8 }}
-{{- end }}
-{{- if $.Values.deployment.volumeMounts }}
-        volumeMounts:
-{{ tpl (toYaml $.Values.deployment.volumeMounts) $ | indent 8 }}
-{{- end }}
-{{- if $.Values.deployment.envFrom }}
-        envFrom:
-{{ tpl (toYaml $.Values.deployment.envFrom) $ | indent 8 }}
-{{- end }}
-{{- if $.Values.deployment.env }}
-        env:
-{{ tpl (toYaml $.Values.deployment.env) $ | indent 8 }}
 {{- end }}
 {{- end }}
 

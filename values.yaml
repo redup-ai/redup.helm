@@ -70,9 +70,10 @@ grpcGateway:
     - change.me.v1.Service
     resources:
       requests:
-        memory: "64Mi"
+        cpu: 25m
+        memory: "128Mi"
       limits:
-        memory: "64Mi"
+        memory: "128Mi"
     # Optional command/args for custom envoy images
     command: []
     args: []
@@ -89,9 +90,10 @@ grpcGateway:
     port: 18081
     resources:
       requests:
-        memory: "64Mi"
+        cpu: 25m
+        memory: "32Mi"
       limits:
-        memory: "64Mi"
+        memory: "32Mi"
     # Optional command/args for custom swagger images
     command: []
     args: []

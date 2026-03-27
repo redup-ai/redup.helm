@@ -71,9 +71,9 @@ grpcGateway:
     resources:
       requests:
         cpu: 25m
-        memory: "128Mi"
+        memory: "96Mi"
       limits:
-        memory: "128Mi"
+        memory: "96Mi"
     # Optional command/args for custom envoy images
     command: []
     args: []

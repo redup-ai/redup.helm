@@ -278,6 +278,12 @@ spec:
         - name: grpc-gateway-artifacts
           mountPath: /usr/share/nginx/html/swagger.json
           subPath: api.json
+        - name: grpc-gateway-artifacts
+          mountPath: /etc/nginx/html/api.json
+          subPath: api.json
+        - name: grpc-gateway-artifacts
+          mountPath: /etc/nginx/html/api.swagger.json
+          subPath: api.json
 {{- end }}
 {{- if $.Values.deployment.containers }}
 {{ tpl (toYaml $.Values.deployment.containers) $ | indent 6 }}

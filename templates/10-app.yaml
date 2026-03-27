@@ -147,6 +147,7 @@ spec:
               /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
           fi
           mv /opt/grpc-gateway/artifacts/api.json.tmp /opt/grpc-gateway/artifacts/api.json
+          chmod 0644 /opt/grpc-gateway/artifacts/api.json /opt/grpc-gateway/artifacts/gateway.pb
 
           # Keep servers[] for compatibility with some swagger-ui variants
           if grep -Eq '"servers"[[:space:]]*:' /opt/grpc-gateway/artifacts/api.json; then
@@ -253,8 +254,6 @@ spec:
         env:
         - name: PORT
           value: "{{ $.Values.grpcGateway.swagger.port }}"
-        - name: SWAGGER_JSON
-          value: "/api.swagger.json"
         - name: SWAGGER_JSON_URL
           value: "/api.swagger.json"
 {{- if $.Values.grpcGateway.swagger.resources }}
@@ -267,22 +266,7 @@ spec:
           protocol: TCP
         volumeMounts:
         - name: grpc-gateway-artifacts
-          mountPath: /opt/grpc-gateway/artifacts
-        # Expose the generated api.json to swagger-ui at /api.json.
-        - name: grpc-gateway-artifacts
-          mountPath: /usr/share/nginx/html/api.json
-          subPath: api.json
-        - name: grpc-gateway-artifacts
           mountPath: /usr/share/nginx/html/api.swagger.json
-          subPath: api.json
-        - name: grpc-gateway-artifacts
-          mountPath: /usr/share/nginx/html/swagger.json
-          subPath: api.json
-        - name: grpc-gateway-artifacts
-          mountPath: /etc/nginx/html/api.json
-          subPath: api.json
-        - name: grpc-gateway-artifacts
-          mountPath: /etc/nginx/html/api.swagger.json
           subPath: api.json
 {{- end }}
 {{- if $.Values.deployment.containers }}

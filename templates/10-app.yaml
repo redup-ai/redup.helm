@@ -246,6 +246,8 @@ spec:
           value: "{{ $.Values.grpcGateway.swagger.port }}"
         - name: SWAGGER_JSON_URL
           value: "/api.swagger.json"
+        - name: VALIDATOR_URL
+          value: "none"
 {{- if $.Values.grpcGateway.swagger.resources }}
         resources:
 {{ tpl (toYaml $.Values.grpcGateway.swagger.resources) $ | indent 10 }}

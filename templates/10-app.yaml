@@ -139,25 +139,15 @@ spec:
           cp {{ $.Values.grpcGateway.artifacts.apiJsonPath }} /opt/grpc-gateway/artifacts/api.json
           # swagger-ui (Swagger 2.0) uses basePath for request URLs
           if grep -Eq '"basePath"[[:space:]]*:' /opt/grpc-gateway/artifacts/api.json; then
-            sed -E 's/"basePath"[[:space:]]*:[[:space:]]*"[^"]*"/"basePath":"\/grpc-gateway"/' \
+            sed -E 's/"basePath"[[:space:]]*:[[:space:]]*"[^"]*"/"basePath":"\/gateway"/' \
               /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
           else
             # Insert basePath right after "swagger": "2.0",
-            sed -E '0,/"swagger"[[:space:]]*:[[:space:]]*"2\.0"[[:space:]]*,/{s/"swagger"[[:space:]]*:[[:space:]]*"2\.0"[[:space:]]*,/"swagger":"2.0","basePath":"\/grpc-gateway",/}' \
+            sed -E '0,/"swagger"[[:space:]]*:[[:space:]]*"2\.0"[[:space:]]*,/{s/"swagger"[[:space:]]*:[[:space:]]*"2\.0"[[:space:]]*,/"swagger":"2.0","basePath":"\/gateway",/}' \
               /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
           fi
           mv /opt/grpc-gateway/artifacts/api.json.tmp /opt/grpc-gateway/artifacts/api.json
           chmod 0644 /opt/grpc-gateway/artifacts/api.json /opt/grpc-gateway/artifacts/gateway.pb
-
-          # Keep servers[] for compatibility with some swagger-ui variants
-          if grep -Eq '"servers"[[:space:]]*:' /opt/grpc-gateway/artifacts/api.json; then
-            sed -E '0,/"servers"[[:space:]]*:[[:space:]]*\[[^]]*\]/{s//"servers":[{"url":"\/grpc-gateway"}]/}' \
-              /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
-          else
-            sed -E '0,/\{/{s//{"servers":[{"url":"\/grpc-gateway"}],/}' \
-              /opt/grpc-gateway/artifacts/api.json > /opt/grpc-gateway/artifacts/api.json.tmp
-          fi
-          mv /opt/grpc-gateway/artifacts/api.json.tmp /opt/grpc-gateway/artifacts/api.json
         volumeMounts:
         - name: grpc-gateway-artifacts
           mountPath: /opt/grpc-gateway/artifacts

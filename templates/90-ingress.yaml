@@ -16,29 +16,13 @@ spec:
     http:
       paths:
 {{- if and $.Values.grpcGateway $.Values.grpcGateway.enable }}
-      - path: /grpc.reflection.v1.ServerReflection
+      - path: /grpc.
         pathType: Prefix
         backend:
           service:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
             port:
               name: {{ $.Values.ingress.service.port }}
-      - path: /grpc.reflection.v1alpha.ServerReflection
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
-            port:
-              name: {{ $.Values.ingress.service.port }}
-{{- range $_, $service := $.Values.grpcGateway.envoy.transcoderServices }}
-      - path: /{{ $service }}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
-            port:
-              name: {{ $.Values.ingress.service.port }}
-{{- end }}
 {{- else }}
       - pathType: ImplementationSpecific
         backend:
@@ -97,7 +81,7 @@ kind: Ingress
 metadata:
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    nginx.ingress.kubernetes.io/rewrite-target: "/$1"
 {{- if $.Values.grpcGateway.ingress.annotations }}
 {{ tpl (toYaml $.Values.grpcGateway.ingress.annotations) $ | indent 4 }}
 {{- end }}
@@ -109,7 +93,56 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-      - path: /grpc-gateway(/|$)(.*)
+      - path: /()
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(index.css)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(swagger-ui.css)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(favicon-.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(swagger-.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(.*css)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(api.swagger.json)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /gateway(?:/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:

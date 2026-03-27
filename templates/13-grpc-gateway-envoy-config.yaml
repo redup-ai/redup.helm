@@ -68,10 +68,10 @@ data:
                     route:
                       cluster: swagger
                   - match:
-                      path: /api.json
+                      path: /api.swagger.json
                     route:
                       cluster: swagger
-                      prefix_rewrite: /api.json
+                      prefix_rewrite: /api.swagger.json
                   - match:
                       prefix: /swagger-
                     route:

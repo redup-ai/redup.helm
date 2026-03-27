@@ -254,9 +254,9 @@ spec:
         - name: PORT
           value: "{{ $.Values.grpcGateway.swagger.port }}"
         - name: SWAGGER_JSON
-          value: "/grpc-gateway/api.json"
+          value: "/api.swagger.json"
         - name: SWAGGER_JSON_URL
-          value: "/grpc-gateway/api.json"
+          value: "/api.swagger.json"
 {{- if $.Values.grpcGateway.swagger.resources }}
         resources:
 {{ tpl (toYaml $.Values.grpcGateway.swagger.resources) $ | indent 10 }}
@@ -268,10 +268,12 @@ spec:
         volumeMounts:
         - name: grpc-gateway-artifacts
           mountPath: /opt/grpc-gateway/artifacts
-        # Expose the generated api.json to swagger-ui at /api.json
-        # (Envoy will rewrite /grpc-gateway/api.json -> /api.json).
+        # Expose the generated api.json to swagger-ui at /api.json.
         - name: grpc-gateway-artifacts
           mountPath: /usr/share/nginx/html/api.json
+          subPath: api.json
+        - name: grpc-gateway-artifacts
+          mountPath: /usr/share/nginx/html/api.swagger.json
           subPath: api.json
         - name: grpc-gateway-artifacts
           mountPath: /usr/share/nginx/html/swagger.json

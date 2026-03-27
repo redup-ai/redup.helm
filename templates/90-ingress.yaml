@@ -71,7 +71,7 @@ kind: Ingress
 metadata:
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    nginx.ingress.kubernetes.io/rewrite-target: "/$1"
 {{- if $.Values.grpcGateway.ingress.annotations }}
 {{ tpl (toYaml $.Values.grpcGateway.ingress.annotations) $ | indent 4 }}
 {{- end }}
@@ -83,7 +83,35 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-      - path: /grpc-gateway(/|$)(.*)
+      - path: /
+        pathType: Exact
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(api.swagger.json)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(swagger-.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /(favicon-.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.grpcGateway.ingress.servicePort }}
+      - path: /grpc-gateway(?:/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:

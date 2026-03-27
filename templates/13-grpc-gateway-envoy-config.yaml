@@ -73,6 +73,10 @@ data:
                       cluster: swagger
                       prefix_rewrite: /api.swagger.json
                   - match:
+                      path: /index.css
+                    route:
+                      cluster: swagger
+                  - match:
                       prefix: /swagger-
                     route:
                       cluster: swagger

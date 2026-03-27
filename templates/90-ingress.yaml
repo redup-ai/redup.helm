@@ -23,6 +23,15 @@ spec:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
             port:
               name: {{ $.Values.ingress.service.port }}
+{{- range $_, $service := $.Values.grpcGateway.envoy.transcoderServices }}
+      - path: /{{ $service }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.ingress.service.port }}
+{{- end }}
 {{- else }}
       - pathType: ImplementationSpecific
         backend:

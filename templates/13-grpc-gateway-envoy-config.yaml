@@ -60,33 +60,42 @@ data:
               route_config:
                 name: local_route
                 virtual_hosts:
-                - name: app
+                - name: gateway
                   domains: ["*"]
                   routes:
-{{- range $_, $service := $.Values.grpcGateway.envoy.transcoderServices }}
                   - match:
-                      prefix: /grpc-gateway/{{ $service }}
-                    route:
-                      cluster: grpc
-                      prefix_rewrite: /{{ $service }}
-                      timeout: 3600s
-{{- end }}
-                  - match:
-                      path: /grpc-gateway
-                    redirect:
-                      path_redirect: /grpc-gateway/
-                      response_code: MOVED_PERMANENTLY
-                  - match:
-                      prefix: /grpc-gateway
+                      path: /
                     route:
                       cluster: swagger
-                      prefix_rewrite: /
+                  - match:
+                      path: /api.json
+                    route:
+                      cluster: swagger
+                      prefix_rewrite: /api.json
+                  - match:
+                      prefix: /swagger-
+                    route:
+                      cluster: swagger
+                  - match:
+                      prefix: /favicon-
+                    route:
+                      cluster: swagger
+                  - match:
+                      prefix: /
+                    route:
+                      cluster: grpc
+                      timeout: 3600s
               http_filters:
               - name: envoy.filters.http.grpc_json_transcoder
                 typed_config:
                   "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
                   convert_grpc_status: true
                   ignore_unknown_query_parameters: true
+                  print_options:
+                    add_whitespace: true
+                    always_print_enums_as_ints: false
+                    always_print_primitive_fields: true
+                    preserve_proto_field_names: false
                   proto_descriptor: /opt/grpc-gateway/artifacts/gateway.pb
                   services:
 {{- range $_, $svc := $.Values.grpcGateway.envoy.transcoderServices }}

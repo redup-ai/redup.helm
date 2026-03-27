@@ -69,9 +69,11 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-{{- if $.Values.grpcGateway.ingress.annotations }}
   annotations:
-{{ tpl (toYaml $.Values.grpcGateway.ingress.annotations) $ | indent 8 }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+{{- if $.Values.grpcGateway.ingress.annotations }}
+{{ tpl (toYaml $.Values.grpcGateway.ingress.annotations) $ | indent 4 }}
 {{- end }}
   name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}-gateway
 spec:
@@ -81,8 +83,8 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-      - path: /grpc-gateway
-        pathType: Prefix
+      - path: /grpc-gateway(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}

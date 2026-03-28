@@ -300,7 +300,78 @@ deployment:
     protocol: TCP
 
 ################################################################################
-# StatefulSet configuration for the application                                 #
+# DaemonSet configuration for the application                                  #
+################################################################################
+
+daemonset:
+  # Enable DaemonSet resource for the application
+  enable: true
+  annotations:
+    pod-reloader.deckhouse.io/auto: "true"
+  podAnnotations: {}
+  # Container image for the main application container
+  podImage: IMAGE_NAME
+  # Resource requests/limits for the main container
+  resources:
+    # Resources required for stable application operation
+    requests:
+      memory: "{{ tpl ($.Values.vpa.maxAllowed.memory) $ }}"
+      cpu: "{{ tpl ($.Values.vpa.maxAllowed.cpu) $ }}"
+    # Maximum resources that can be consumed by the application
+    limits:
+      memory: "{{ tpl ($.Values.vpa.maxAllowed.memory) $ }}"
+  # Liveness probe configuration
+  livenessProbe:
+    tcpSocket:
+      port: 9878
+    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  # Readiness probe configuration
+  readinessProbe:
+    tcpSocket:
+      port: 9878
+    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 20
+  # Startup probe to ensure the service has started
+  startupProbe:
+    tcpSocket:
+      port: 9878
+    failureThreshold: 90
+    periodSeconds: 20
+  # Maximum time for graceful shutdown after receiving SIGTERM
+  terminationGracePeriodSeconds: 30
+  # Volumes attached to the pod
+  volumes:
+  - name: tz-config
+    hostPath:
+      path: /usr/share/zoneinfo/Europe/Moscow
+  # Volume mounts for the main container
+  volumeMounts:
+  - name: tz-config
+    mountPath: /etc/localtime
+  # Environment configuration from ConfigMap
+  envFrom:
+  - configMapRef:
+      name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 }}-envs"
+  # Ports exposed by the main container
+  containerPorts:
+    # Port where the application listens in the container
+  - containerPort: 9878
+    # Port name used by the Service
+    name: grpc-app
+    # Protocol for this port
+    protocol: TCP
+  # Port where application metrics are exposed
+  - containerPort: 9999
+  # Port name used by the Service for metrics
+    name: http-app
+  # Protocol for this port
+    protocol: TCP
+
+################################################################################
+# StatefulSet configuration for the application                                #
 ################################################################################
 
 statefulset:

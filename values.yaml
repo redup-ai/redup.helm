@@ -349,17 +349,19 @@ statefulset:
     periodSeconds: 5
   # Maximum time for graceful shutdown after receiving SIGTERM
   terminationGracePeriodSeconds: 30
+  # Pod NodeAffinity for clusters, use Static node preferable.
+  podAffinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: node.deckhouse.io/type
+            operator: In
+            values:
+            - Static
   # Pod topology spread constraints across the cluster
   topologySpreadConstraints:
-  - maxSkew: 1
-    whenUnsatisfiable: ScheduleAnyway
-    labelSelector:
-      matchLabels:
-        app.kubernetes.io/name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
-        app.kubernetes.io/component: "{{ tpl ($.Values.global.package) $ }}"
-        app.kubernetes.io/part-of: "{{ $.Release.Namespace }}"
-        app.kubernetes.io/instance: "{{ $.Release.Name }}"
-    topologyKey: topology.kubernetes.io/region
   - maxSkew: 1
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:

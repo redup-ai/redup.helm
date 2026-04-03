@@ -305,7 +305,7 @@ deployment:
 
 daemonset:
   # Enable DaemonSet resource for the application
-  enable: true
+  enable: false
   annotations:
     pod-reloader.deckhouse.io/auto: "true"
   podAnnotations: {}

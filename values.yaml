@@ -177,6 +177,8 @@ istio:
 service:
   # Enable Service resource for the application
   enable: true
+  # Type of service. Also can be set to LoadBalancer (if appling in your cluster)
+  type: ClusterIP
   # Additional service labels, e.g. for Deckhouse Prometheus scraping
   serviceLabels:
     prometheus.deckhouse.io/custom-target: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"

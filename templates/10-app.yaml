@@ -19,7 +19,7 @@ metadata:
 spec:
   selector:
     app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
-  type: ClusterIP
+  type: {{ tpl (toYaml $.Values.service.type) $ }}
 {{- if $.Values.service.clusterIP }}
   clusterIP: {{ tpl (toYaml $.Values.service.clusterIP) $ }}
 {{- end }}

@@ -68,6 +68,9 @@ grpcGateway:
     port: 18080
     transcoderServices:
     - change.me.v1.Service
+    # Use for not transcoding, but for forwarding grpc requests.
+    # If use many different protos, one main for transcoding 
+    # and other for pure use grpc
     extraTranscoderServices: []
     resources:
       requests:

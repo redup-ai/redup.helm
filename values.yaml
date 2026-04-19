@@ -68,6 +68,7 @@ grpcGateway:
     port: 18080
     transcoderServices:
     - change.me.v1.Service
+    extraTranscoderServices: []
     resources:
       requests:
         cpu: 25m

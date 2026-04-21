@@ -390,6 +390,8 @@ statefulset:
   podManagementPolicy: Parallel
   # Number of replicas, ignoring HPA (recommended = minReplicas)
   replicas: "{{ tpl ($.Values.hpa.minReplicas) $ }}"
+  # Priority for pod sheduling and descheduling
+  priorityClassName: production-medium
   # Strategy for updating pods in the StatefulSet
   updateStrategy:
     type: RollingUpdate

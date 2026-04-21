@@ -210,6 +210,8 @@ deployment:
   podAnnotations: {}
   # Number of replicas, ignoring HPA (recommended = minReplicas)
   replicas: "{{ tpl ($.Values.hpa.minReplicas) $ }}"
+  # Priority for pod sheduling and descheduling
+  priorityClassName: production-medium
   # Pod update strategy
   strategy:
     type: RollingUpdate
@@ -315,6 +317,8 @@ daemonset:
   annotations:
     pod-reloader.deckhouse.io/auto: "true"
   podAnnotations: {}
+  # Priority for pod sheduling and descheduling
+  priorityClassName: production-medium
   # Container image for the main application container
   podImage: IMAGE_NAME
   # Resource requests/limits for the main container

@@ -506,11 +506,11 @@ hpa:
   # Pod metrics configuration
   podMetric:
     query: round(100* (avg by(<<.GroupBy>>) (rate(your_metric{<<.LabelMatchers>>}[2m]))))
-    averageValue: "60"
+    averageValue: "80"
   # Scaling behavior configuration
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 1800
+      stabilizationWindowSeconds: 600
 
 ################################################################################
 # VPA configuration for the application                                         #

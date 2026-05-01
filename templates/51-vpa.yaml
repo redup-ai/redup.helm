@@ -31,7 +31,7 @@ spec:
     - containerName: "*"
       mode: "Off"
 {{- range $_, $container := $.Values.vpa.extraContainers }}
-    - containerName: $container.name
+    - containerName: {{ tpl ($container.name) $ }}
       minAllowed:
         memory: {{ tpl ($container.minAllowed.memory) $ }}
         cpu: {{ tpl ($container.minAllowed.cpu) $ }}

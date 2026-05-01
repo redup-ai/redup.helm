@@ -519,6 +519,8 @@ hpa:
 vpa:
   # Enable VerticalPodAutoscaler for the application
   enable: false
+  # Method for updating resources fo pod. 
+  # For k8s version 1.33 and above use InPlaceOrRecreate. For k8s version below 1.33 use Auto.
   updateMode: "InPlaceOrRecreate"
   # Minimum number of replicas before pods can be restarted with new RAM/CPU values
   minReplicas: "1"

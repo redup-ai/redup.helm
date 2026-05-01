@@ -519,6 +519,7 @@ hpa:
 vpa:
   # Enable VerticalPodAutoscaler for the application
   enable: false
+  updateMode: "InPlaceOrRecreate"
   # Minimum number of replicas before pods can be restarted with new RAM/CPU values
   minReplicas: "1"
   # Minimum allowed resources for pods

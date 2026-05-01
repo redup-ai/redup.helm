@@ -30,6 +30,26 @@ spec:
     containerPolicies:
     - containerName: "*"
       mode: "Off"
+{{- range $_, $container := $.Values.vpa.extraContainers }}
+    - containerName: $container.name
+      minAllowed:
+        memory: {{ tpl ($container.minAllowed.memory) $ }}
+        cpu: {{ tpl ($container.minAllowed.cpu) $ }}
+      maxAllowed:
+        memory: {{ tpl ($container.maxAllowed.memory) $ }}
+        cpu: {{ tpl ($container.maxAllowed.cpu) $ }}
+{{- if $.Values.vpa.controlledResources }}
+      {{- with $.Values.vpa.controlledResources  }}
+      controlledResources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- else }}
+      controlledResources: ["memory", "cpu"]
+{{- end }}
+{{- if $.Values.vpa.controlledValues }}
+      controlledValues: {{ tpl ($.Values.vpa.controlledValues) $ }}
+{{- end }}
+{{- end }}
     - containerName: main
       minAllowed:
         memory: {{ tpl ($.Values.vpa.minAllowed.memory) $ }}

@@ -30,6 +30,24 @@ spec:
     containerPolicies:
     - containerName: "*"
       mode: "Off"
+    - containerName: main
+      minAllowed:
+        memory: {{ tpl ($.Values.vpa.minAllowed.memory) $ }}
+        cpu: {{ tpl ($.Values.vpa.minAllowed.cpu) $ }}
+      maxAllowed:
+        memory: {{ tpl ($.Values.vpa.maxAllowed.memory) $ }}
+        cpu: {{ tpl ($.Values.vpa.maxAllowed.cpu) $ }}
+{{- if $.Values.vpa.controlledResources }}
+      {{- with $.Values.vpa.controlledResources  }}
+      controlledResources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- else }}
+      controlledResources: ["memory", "cpu"]
+{{- end }}
+{{- if $.Values.vpa.controlledValues }}
+      controlledValues: {{ tpl ($.Values.vpa.controlledValues) $ }}
+{{- end }}
 {{- range $_, $container := $.Values.vpa.extraContainers }}
     - containerName: {{ tpl ($container.name) $ }}
       minAllowed:
@@ -49,23 +67,5 @@ spec:
 {{- if $.Values.vpa.controlledValues }}
       controlledValues: {{ tpl ($.Values.vpa.controlledValues) $ }}
 {{- end }}
-{{- end }}
-    - containerName: main
-      minAllowed:
-        memory: {{ tpl ($.Values.vpa.minAllowed.memory) $ }}
-        cpu: {{ tpl ($.Values.vpa.minAllowed.cpu) $ }}
-      maxAllowed:
-        memory: {{ tpl ($.Values.vpa.maxAllowed.memory) $ }}
-        cpu: {{ tpl ($.Values.vpa.maxAllowed.cpu) $ }}
-{{- if $.Values.vpa.controlledResources }}
-      {{- with $.Values.vpa.controlledResources  }}
-      controlledResources:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-{{- else }}
-      controlledResources: ["memory", "cpu"]
-{{- end }}
-{{- if $.Values.vpa.controlledValues }}
-      controlledValues: {{ tpl ($.Values.vpa.controlledValues) $ }}
 {{- end }}
 {{- end }}

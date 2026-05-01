@@ -16,7 +16,7 @@ spec:
 {{- end}}
     name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
   updatePolicy:
-    updateMode: "Auto"
+    updateMode: {{ tpl ($.Values.vpa.updateMode) $ }}
 {{- if $.Values.vpa.minReplicas }}
     minReplicas: {{ tpl ($.Values.vpa.minReplicas) $ }}
 {{- end }}

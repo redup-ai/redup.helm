@@ -526,17 +526,25 @@ vpa:
   minReplicas: "1"
   # Minimum allowed resources for pods
   minAllowed:
-    memory: "100Mi"
+    memory: "128Mi"
     cpu: "100m"
   # Maximum allowed resources for pods
   maxAllowed:
     memory: "2Gi"
-    cpu: "1000m"
+    cpu: "2"
   # Controlled resources and values
   controlledValues: "RequestsAndLimits"
   controlledResources: ["memory", "cpu"]
   recommenders: []
   # - name: redup
+  extraContainers:
+  - name: istio-proxy
+    minAllowed:
+      memory: "128Mi"
+      cpu: "50m"
+    maxAllowed:
+      memory: "1Gi"
+      cpu: "1"
 
 ################################################################################
 # PersistentVolumeClaim configuration for the application                       #

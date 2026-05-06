@@ -569,9 +569,9 @@ persistentvolume:
 
 pdb:
   # Enable PodDisruptionBudget for the application
-  enable: false
+  enable: true
   # Minimum number of pods that must remain available
-  minAvailable: "50%"
+  maxUnavailable: "50%"
 
 ################################################################################
 # ConfigMap configuration for the application                                   #

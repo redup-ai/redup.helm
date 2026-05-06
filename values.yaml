@@ -207,7 +207,12 @@ deployment:
   enable: true
   annotations:
     pod-reloader.deckhouse.io/auto: "true"
-  podAnnotations: {}
+  # Use annotations for application
+  podAnnotations:
+    sidecar.istio.io/proxyCPU: "100m"
+    sidecar.istio.io/proxyCPULimit: "100m"
+    sidecar.istio.io/proxyMemory: "128Mi"
+    sidecar.istio.io/proxyMemoryLimit: "128Mi"
   # Number of replicas, ignoring HPA (recommended = minReplicas)
   replicas: "{{ tpl ($.Values.hpa.minReplicas) $ }}"
   # Priority for pod sheduling and descheduling
@@ -316,7 +321,12 @@ daemonset:
   enable: false
   annotations:
     pod-reloader.deckhouse.io/auto: "true"
-  podAnnotations: {}
+  # Use annotations for application
+  podAnnotations:
+    sidecar.istio.io/proxyCPU: "100m"
+    sidecar.istio.io/proxyCPULimit: "100m"
+    sidecar.istio.io/proxyMemory: "128Mi"
+    sidecar.istio.io/proxyMemoryLimit: "128Mi"
   # Priority for pod sheduling and descheduling
   priorityClassName: production-medium
   # Container image for the main application container
@@ -389,7 +399,12 @@ statefulset:
   enable: false
   annotations:
     pod-reloader.deckhouse.io/auto: "true"
-  podAnnotations: {}
+  # Use annotations for application
+  podAnnotations:
+    sidecar.istio.io/proxyCPU: "100m"
+    sidecar.istio.io/proxyCPULimit: "100m"
+    sidecar.istio.io/proxyMemory: "128Mi"
+    sidecar.istio.io/proxyMemoryLimit: "128Mi"
   # Pod management policy within the StatefulSet
   podManagementPolicy: Parallel
   # Number of replicas, ignoring HPA (recommended = minReplicas)

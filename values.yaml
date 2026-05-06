@@ -570,7 +570,7 @@ persistentvolume:
 pdb:
   # Enable PodDisruptionBudget for the application
   enable: true
-  # Minimum number of pods that must remain available
+  # Maximum number of pods that can be unavailable in one moment
   maxUnavailable: "50%"
 
 ################################################################################

@@ -525,7 +525,7 @@ hpa:
   # Scaling behavior configuration
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 600
+      stabilizationWindowSeconds: 3600
 
 ################################################################################
 # VPA configuration for the application                                         #

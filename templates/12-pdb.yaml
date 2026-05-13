@@ -7,10 +7,10 @@ metadata:
   labels:
     app: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
-{{- if $.Values.pdb.maxUnavailable }}
-  maxUnavailable: {{ $.Values.pdb.maxUnavailable }}
-{{ else if $.Values.pdb.minAvailable }}
+{{- if  $.Values.pdb.minAvailable }}
   minAvailable: {{ $.Values.pdb.minAvailable }}
+{{ else if $.Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ $.Values.pdb.maxUnavailable }}
 {{- end }}
   unhealthyPodEvictionPolicy: AlwaysAllow
   selector:

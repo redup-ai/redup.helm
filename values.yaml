@@ -210,7 +210,7 @@ deployment:
   # Use annotations for application
   podAnnotations:
     sidecar.istio.io/proxyCPU: "100m"
-    sidecar.istio.io/proxyCPULimit: "100m"
+    sidecar.istio.io/proxyCPULimit: "10"
     sidecar.istio.io/proxyMemory: "128Mi"
     sidecar.istio.io/proxyMemoryLimit: "128Mi"
   # Number of replicas, ignoring HPA (recommended = minReplicas)

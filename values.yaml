@@ -124,7 +124,7 @@ istio:
       # Number of retry attempts
         attempts: 8
       # Conditions under which the request should be retried
-        retryOn: connect-failure,refused-stream,unavailable,cancelled,retriable-status-codes,resource-exhausted
+        retryOn: connect-failure,refused-stream,unavailable,retriable-status-codes,resource-exhausted
     # Destination address for the routed traffic
       route:
       - destination:

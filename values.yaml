@@ -131,7 +131,7 @@ istio:
           host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
         # Destination subset (version of pods)
           subset: v1
-      timeout: 300s
+      timeout: 3600s
   # DestinationRule configuration
   DestinationRule:
     # Rule for a specific host

@@ -113,7 +113,7 @@ istio:
   VirtualService:
   # List of hosts to which Istio rules apply
     hosts:
-    # Example: <service-name>.<namespace-name>.svc.cluster.local
+    # Example: <service>.<namespace>.svc.cluster.local
     - "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
     # HTTP routing rules for intercepted traffic
     http:
@@ -122,26 +122,26 @@ istio:
     # Retry policy for failed requests
       retries:
       # Number of retry attempts
-        attempts: 8
+        attempts: 3
       # Conditions under which the request should be retried
         retryOn: connect-failure,refused-stream,unavailable,retriable-status-codes,resource-exhausted
-    # Destination address for the routed traffic
+      # Destination address for the routed traffic
       route:
       - destination:
           host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
-        # Destination subset (version of pods)
+          # Destination subset (version of pods)
           subset: v1
       timeout: 3600s
   # DestinationRule configuration
   DestinationRule:
     # Rule for a specific host
     host: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}.{{ $.Release.Namespace }}.svc.cluster.local"
-  # Subsets that select pods for traffic routing
+    # Subsets that select pods for traffic routing
     subsets:
     # Pod labels used to select pods in the cluster
     - labels:
         app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
-    # Subset name (version label)
+      # Subset name (version label)
       name: v1
     # Connection policy
     trafficPolicy:
@@ -152,7 +152,7 @@ istio:
           idleTimeout: 5s
         tcp:
           # Maximum time to establish a connection
-          connectTimeout: 1s
+          connectTimeout: 3s
           # Maximum lifetime of a connection (active connections are not closed)
           maxConnectionDuration: 60s
       # Load balancing strategy between service pods
@@ -169,10 +169,12 @@ istio:
   # Sidecar routing configuration
   Sidecar:
     workloadSelector:
+      # Restricts pods to which this Sidecar applies
       labels:
-        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}" # restricts pods to which this Sidecar applies
+        app: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
     egress:
-    - hosts: ["~/*"] # routing table; by default does not control any outgoing connections
+    # Routing table; by default does not control any outgoing connections
+    - hosts: ["~/*"]
 
 ################################################################################
 # Service configuration for the application                                     #

@@ -1,5 +1,5 @@
 ################################################################################
-# Global application settings                                                   #
+# Global application settings                                                  #
 ################################################################################
 
 global:
@@ -7,7 +7,7 @@ global:
   package: REPO_NAME
 
 ################################################################################
-# Application secrets configuration                                             #
+# Application secrets configuration                                            #
 ################################################################################
 
 secrets:
@@ -15,7 +15,7 @@ secrets:
   data: {}
 
 ################################################################################
-# Ingress controller configuration                                              #
+# Ingress controller configuration                                             #
 ################################################################################
 
 ingress:
@@ -103,7 +103,7 @@ grpcGateway:
     args: []
 
 ################################################################################
-# Istio traffic configuration for the application                               #
+# Istio traffic configuration for the application                              #
 ################################################################################
 
 istio:
@@ -177,7 +177,7 @@ istio:
     - hosts: ["~/*"]
 
 ################################################################################
-# Service configuration for the application                                     #
+# Service configuration for the application                                    #
 ################################################################################
 
 service:
@@ -201,7 +201,7 @@ service:
     protocol: TCP
 
 ################################################################################
-# Deployment configuration for the application                                  #
+# Deployment configuration for the application                                 #
 ################################################################################
 
 deployment:
@@ -522,7 +522,7 @@ statefulset:
       protocol: TCP
 
 ################################################################################
-# HPA configuration for the application (Deckhouse only)                        #
+# HPA configuration for the application (Deckhouse only)                       #
 ################################################################################
 
 hpa:
@@ -542,7 +542,7 @@ hpa:
       stabilizationWindowSeconds: 3600
 
 ################################################################################
-# VPA configuration for the application                                         #
+# VPA configuration for the application                                        #
 ################################################################################
 
 vpa:
@@ -576,7 +576,7 @@ vpa:
       cpu: "1"
 
 ################################################################################
-# PersistentVolumeClaim configuration for the application                       #
+# PersistentVolumeClaim configuration for the application                      #
 ################################################################################
 
 persistentvolumeclaim:
@@ -585,7 +585,7 @@ persistentvolumeclaim:
   name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}-{{ tpl (toYaml $.Values.persistentvolume) $ | sha256sum | trunc 8 }}"
 
 ################################################################################
-# PersistentVolume configuration for the application                            #
+# PersistentVolume configuration for the application                           #
 ################################################################################
 
 persistentvolume:
@@ -593,7 +593,7 @@ persistentvolume:
   enable: false
   
 ################################################################################
-# PodDisruptionBudget configuration for the application                         #
+# PodDisruptionBudget configuration for the application                        #
 ################################################################################
 
 pdb:
@@ -603,7 +603,7 @@ pdb:
   maxUnavailable: "50%"
 
 ################################################################################
-# ConfigMap configuration for the application                                   #
+# ConfigMap configuration for the application                                  #
 ################################################################################
 
 configMap:
@@ -615,7 +615,7 @@ configMap:
     #   service: {}
         
 ################################################################################
-# Environment ConfigMap configuration for the application                       #
+# Environment ConfigMap configuration for the application                      #
 ################################################################################
 
 configEnv:
@@ -626,7 +626,7 @@ configEnv:
     # MY_ENV: "10"
 
 ################################################################################
-# Extra Kubernetes manifests to deploy with the application                     #
+# Extra Kubernetes manifests to deploy with the application                    #
 ################################################################################
 
 extraDeploy:

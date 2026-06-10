@@ -42,7 +42,8 @@ spec:
               name: {{ $.Values.ingress.service.port }}
 {{- end }}
 {{- else }}
-      - pathType: ImplementationSpecific
+      - path: {{ $.Values.ingress.path }}
+        pathType: {{ $.Values.ingress.pathType }}
         backend:
           service:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
@@ -75,7 +76,8 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-      - pathType: ImplementationSpecific
+      - path: {{ tpl $extrahost.path $ }}
+        pathType: {{ tpl $extrahost.pathType $ }}
         backend:
           service:
             name: {{ tpl $extrahost.service.name $ }}

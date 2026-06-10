@@ -33,6 +33,10 @@ ingress:
   service:
     # Service port name
     port: "grpc-app"
+  # PathType mapping for ingress
+  pathType: ImplementationSpecific
+  # Path mapping for ingress
+  path: /
   # List of hostnames that route traffic to the service
   hosts:
     # Example: <service-name>-<namespace-name>.example.com
@@ -43,6 +47,8 @@ ingress:
   #   service:
   #     port: "http-metrics"
   #     name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
+  #   pathType: ImplementationSpecific
+  #   path: /
   #   annotations: {}
   #   tls-secret-name: ""
   #   controller: "nginx"

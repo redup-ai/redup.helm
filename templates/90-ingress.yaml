@@ -76,8 +76,8 @@ spec:
   - host: {{ tpl $host $ }}
     http:
       paths:
-      - path: {{ tpl $extrahost.path $ }}
-        pathType: {{ tpl $extrahost.pathType $ }}
+      - path: {{ tpl (default "/" $extrahost.path) $ }}
+        pathType: {{ tpl (default "ImplementationSpecific" $extrahost.pathType) $ }}
         backend:
           service:
             name: {{ tpl $extrahost.service.name $ }}

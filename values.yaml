@@ -128,7 +128,7 @@ istio:
     # Retry policy for failed requests
       retries:
       # Number of retry attempts
-        attempts: 8
+        attempts: 3
       # Conditions under which the request should be retried
         retryOn: connect-failure,refused-stream,unavailable,retriable-status-codes,resource-exhausted
       # Destination address for the routed traffic

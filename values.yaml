@@ -164,6 +164,14 @@ istio:
       # Load balancing strategy between service pods
       loadBalancer:
         simple: LEAST_REQUEST
+        localityLbSetting:
+          enabled: true
+      # Outlier detection
+      outlierDetection:
+        consecutiveGatewayErrors: 1
+        interval: 1s
+        baseEjectionTime: 15s
+        maxEjectionPercent: 100
   # PeerAuthentication configuration between sidecars
   PeerAuthentication:
     selector:

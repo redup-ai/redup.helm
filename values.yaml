@@ -273,17 +273,6 @@ deployment:
     periodSeconds: 20
   # Maximum time for graceful shutdown after receiving SIGTERM
   terminationGracePeriodSeconds: 30
-  # Pod NodeAffinity for clusters, use Static node preferable.
-  podAffinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        preference:
-          matchExpressions:
-          - key: node.deckhouse.io/type
-            operator: In
-            values:
-            - Static
   # Pod topology spread constraints across the cluster
   topologySpreadConstraints:
   - maxSkew: 1

@@ -531,7 +531,7 @@ statefulset:
 hpa:
   # Enable HorizontalPodAutoscaler for the application
   enable: false
-  # Type of Metric
+  # Type of Metric. Support: Pods and Service
   type: Pods
   # Minimum number of pod replicas
   minReplicas: "1"

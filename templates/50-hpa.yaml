@@ -42,7 +42,7 @@ spec:
       target:
         type: AverageValue
         averageValue: {{ tpl ($.Values.hpa.averageValue) $ }}
-{{- else if $.Values.statefulset.enable}}
+{{- else if eq $.Values.hpa.type "Service"}}
   - type: Object
     object:
       describedObject:

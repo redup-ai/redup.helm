@@ -34,13 +34,28 @@ spec:
 {{ tpl (toYaml $.Values.hpa.behavior) $ | indent 4 }}
 {{- end }}
   metrics:
-  - type: {{ tpl ($.Values.hpa.type) $ }}
+{{- if eq $.Values.hpa.type "Pods" }}
+  - type: Pods
     pods:
       metric:
         name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
       target:
         type: AverageValue
         averageValue: {{ tpl ($.Values.hpa.averageValue) $ }}
+{{- else if $.Values.statefulset.enable}}
+  - type: Object
+    object:
+      object:
+        describedObject:
+          apiVersion: v1
+          kind: Service
+          name: {{ tpl ($.Values.hpa.serviceMetric.serviceName) $ }}
+      metric:
+        name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+      target:
+        type: Value
+        value: {{ tpl ($.Values.hpa.averageValue) $ }}
+{{- end }}
 {{- if $.Values.hpa.metrics }}
 {{ tpl (toYaml $.Values.hpa.metrics) $ | indent 2 }}
 {{- end }}

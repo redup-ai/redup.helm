@@ -7,6 +7,13 @@ metadata:
 spec:
   query: {{ tpl ($.Values.hpa.podMetric.query) $ }}
 ---
+apiVersion: deckhouse.io/v1beta1
+kind: ServiceMetric
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+spec:
+  query: {{ tpl ($.Values.hpa.serviceMetric.query) $ }}
+---
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2
 metadata:
@@ -27,13 +34,13 @@ spec:
 {{ tpl (toYaml $.Values.hpa.behavior) $ | indent 4 }}
 {{- end }}
   metrics:
-  - type: Pods
+  - type: {{ tpl ($.Values.hpa.type) $ }}
     pods:
       metric:
         name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
       target:
         type: AverageValue
-        averageValue: {{ tpl ($.Values.hpa.podMetric.averageValue) $ }}
+        averageValue: {{ tpl ($.Values.hpa.averageValue) $ }}
 {{- if $.Values.hpa.metrics }}
 {{ tpl (toYaml $.Values.hpa.metrics) $ | indent 2 }}
 {{- end }}

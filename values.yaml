@@ -542,10 +542,10 @@ hpa:
   # Pod metrics configuration
   podMetric:
     query: round(100* (avg by(<<.GroupBy>>) (rate(your_metric{<<.LabelMatchers>>}[2m]))))
-    averageValue: "80"
   # Service metrics configuration
   serviceMetric:
     query: round(100* (avg by(<<.GroupBy>>) (rate(your_metric{<<.LabelMatchers>>}[2m]))))
+    serviceName: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
   # Scaling behavior configuration
   behavior:
     scaleDown:

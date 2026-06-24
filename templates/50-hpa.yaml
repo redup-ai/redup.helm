@@ -45,11 +45,10 @@ spec:
 {{- else if $.Values.statefulset.enable}}
   - type: Object
     object:
-      object:
-        describedObject:
-          apiVersion: v1
-          kind: Service
-          name: {{ tpl ($.Values.hpa.serviceMetric.serviceName) $ }}
+      describedObject:
+        apiVersion: v1
+        kind: Service
+        name: {{ tpl ($.Values.hpa.serviceMetric.serviceName) $ }}
       metric:
         name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
       target:

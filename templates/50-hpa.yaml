@@ -1,4 +1,5 @@
 {{- if and $.Values.hpa $.Values.hpa.enable }}
+{{- if eq $.Values.hpa.type "Pods" }}
 ---
 apiVersion: deckhouse.io/v1beta1
 kind: PodMetric
@@ -6,6 +7,8 @@ metadata:
   name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
   query: {{ tpl ($.Values.hpa.podMetric.query) $ }}
+{{- end }}
+{{- if eq $.Values.hpa.type "Service" }}
 ---
 apiVersion: deckhouse.io/v1beta1
 kind: ServiceMetric
@@ -13,6 +16,7 @@ metadata:
   name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
 spec:
   query: {{ tpl ($.Values.hpa.serviceMetric.query) $ }}
+{{- end }}
 ---
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2

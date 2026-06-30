@@ -155,12 +155,17 @@ istio:
       connectionPool:
         http:
           # Idle connection timeout
-          idleTimeout: 5s
+          idleTimeout: 30s
         tcp:
           # Maximum time to establish a connection
           connectTimeout: 1s
           # Maximum lifetime of a connection (active connections are not closed)
           maxConnectionDuration: 60s
+          # TCP check availability
+          tcpKeepalive:
+            probes: 3
+            time: 10s
+            interval: 5s
       # Load balancing strategy between service pods
       loadBalancer:
         simple: LEAST_REQUEST

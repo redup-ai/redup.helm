@@ -37,6 +37,10 @@ ingress:
   pathType: ImplementationSpecific
   # Path mapping for ingress
   path: /
+  # Additional paths on the same ingress (same host, annotations, backend as path)
+  extraPaths: []
+  # - path: /other
+  #   pathType: ImplementationSpecific
   # List of hostnames that route traffic to the service
   hosts:
     # Example: <service-name>-<namespace-name>.example.com
@@ -49,6 +53,7 @@ ingress:
   #     name: "{{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace \".\" \"-\" }}"
   #   pathType: ImplementationSpecific
   #   path: /
+  #   extraPaths: []
   #   annotations: {}
   #   tls-secret-name: ""
   #   controller: "nginx"

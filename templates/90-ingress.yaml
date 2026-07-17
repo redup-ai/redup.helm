@@ -49,6 +49,15 @@ spec:
             name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
             port:
               name: {{ $.Values.ingress.service.port }}
+{{- range (default list (index $.Values.ingress "extraPaths")) }}
+      - path: {{ tpl .path $ }}
+        pathType: {{ tpl (default $.Values.ingress.pathType .pathType) $ }}
+        backend:
+          service:
+            name: {{ default $.Chart.Name $.Values.nameOverride | trunc 63 | replace "." "-" }}
+            port:
+              name: {{ $.Values.ingress.service.port }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if (index $.Values.ingress "tls-secret-name") }}
@@ -83,6 +92,15 @@ spec:
             name: {{ tpl $extrahost.service.name $ }}
             port:
               name: {{ tpl $extrahost.service.port $ }}
+{{- range (default list (index $extrahost "extraPaths")) }}
+      - path: {{ tpl .path $ }}
+        pathType: {{ tpl (default (default "ImplementationSpecific" $extrahost.pathType) .pathType) $ }}
+        backend:
+          service:
+            name: {{ tpl $extrahost.service.name $ }}
+            port:
+              name: {{ tpl $extrahost.service.port $ }}
+{{- end }}
 {{- end }}
 {{- if (index $extrahost "tls-secret-name") }}
   tls:

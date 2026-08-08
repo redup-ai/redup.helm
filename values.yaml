@@ -247,6 +247,11 @@ deployment:
   replicas: "{{ tpl ($.Values.hpa.minReplicas) $ }}"
   # Priority for pod sheduling and descheduling
   priorityClassName: production-medium
+  # Pod-level securityContext (optional)
+  # securityContext: {}
+  # Container-level securityContext for the main container (optional).
+  # Same shape as statefulset.containerSecurityContext.
+  # containerSecurityContext: {}
   # Pod update strategy
   strategy:
     type: RollingUpdate

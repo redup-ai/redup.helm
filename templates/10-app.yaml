@@ -106,6 +106,10 @@ spec:
       imagePullSecrets:
 {{ tpl (toYaml $.Values.deployment.imagePullSecrets) $ | indent 8 }}
 {{- end }}
+{{- if $.Values.deployment.securityContext }}
+      securityContext:
+{{ tpl (toYaml $.Values.deployment.securityContext) $ | indent 8 }}
+{{- end }}
 {{- if or $.Values.deployment.volumes (and $.Values.grpcGateway $.Values.grpcGateway.enable) }}
       volumes:
 {{- if $.Values.deployment.volumes }}
@@ -167,6 +171,10 @@ spec:
 {{- end }}
 {{- if $.Values.deployment.podArgs }}
 {{ tpl (toYaml $.Values.deployment.podArgs) $ | indent 8 }}
+{{- end }}
+{{- if $.Values.deployment.containerSecurityContext }}
+        securityContext:
+{{ tpl (toYaml $.Values.deployment.containerSecurityContext) $ | indent 10 }}
 {{- end }}
 {{- if $.Values.deployment.livenessProbe }}
         livenessProbe:
